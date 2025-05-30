@@ -15,6 +15,7 @@ Route::get('dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/pendaftaran', [SiswaController::class, 'index'])->name('pendaftaran.index');
     Route::patch('/pendaftaran', [SiswaController::class, 'update'])->name('pendaftaran.update');
+    Route::get('/persyaratan', [SiswaController::class, 'show'])->name('pendaftaran.show');
 });
 
 require __DIR__ . '/settings.php';

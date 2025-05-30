@@ -38,8 +38,8 @@ const data = {
             icon: PieChart,
         },
         {
-            name: 'Travel',
-            url: '#',
+            name: 'Berkas Persyaratan',
+            url: '/persyaratan',
             icon: Map,
         },
     ],

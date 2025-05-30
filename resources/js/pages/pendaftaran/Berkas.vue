@@ -97,10 +97,9 @@ const submit = () => {
                     >
                         <Link
                             :href="route('pendaftaran.index')"
-                            class="text-primary !text-primary relative mr-5 block cursor-pointer appearance-none border border-transparent py-5 text-center font-semibold dark:border-transparent dark:text-slate-400"
+                            class="relative mr-5 block cursor-pointer appearance-none border border-transparent py-5 text-center text-slate-700 dark:border-transparent dark:text-slate-400"
                             >Biodata
-                            <hr class="border-primary absolute -bottom-[2px] left-0 w-full border-b-2"
-                        /></Link>
+                        </Link>
                     </li>
 
                     <li
@@ -114,9 +113,10 @@ const submit = () => {
                     >
                         <Link
                             :href="route('pendaftaran.show')"
-                            class="relative mr-5 block cursor-pointer appearance-none border border-transparent py-5 text-center text-slate-700 dark:border-transparent dark:text-slate-400"
-                            >Berkas Persyaratan</Link
-                        >
+                            class="text-primary !text-primary relative mr-5 block cursor-pointer appearance-none border border-transparent py-5 text-center font-semibold dark:border-transparent dark:text-slate-400"
+                            >Berkas Persyaratan
+                            <hr class="border-primary absolute -bottom-[2px] left-0 w-full border-b-2"
+                        /></Link>
                     </li>
                 </ul>
                 <form @submit.prevent="submit">
@@ -124,7 +124,7 @@ const submit = () => {
                         <div class="mx-6 rounded-3xl border-[1px] border-[#F3F4F6] shadow-xl lg:m-0 lg:rounded-none lg:border-none lg:shadow-none">
                             <div class="mt-5 flex flex-col gap-16">
                                 <div class="flex flex-col">
-                                    <p class="mb-5 text-lg leading-7 font-bold">Informasi Pribadi</p>
+                                    <p class="mb-5 text-lg leading-7 font-bold">Berkas Persyaratan</p>
                                     <div class="flex w-full gap-x-5">
                                         <div>
                                             <div class="flex w-[16rem] flex-col items-center justify-center rounded border px-8 py-6">

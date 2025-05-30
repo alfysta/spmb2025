@@ -61,4 +61,12 @@ class SiswaController extends Controller
 
         return to_route('dashboard');
     }
+
+    public function show()
+    {
+        return Inertia::render('pendaftaran/Berkas', [
+            'user' => auth()->user(),
+            'student' => Pendaftaran::where('user_id', auth()->user()->id)->get(),
+        ]);
+    }
 }
