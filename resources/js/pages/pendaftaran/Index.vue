@@ -8,7 +8,7 @@ import { useForm, usePage } from '@inertiajs/vue3';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { type SharedData, type User } from '@/types';
-import { Link, router } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import { FileInput, LoaderCircle } from 'lucide-vue-next';
 import { ref } from 'vue';
 
@@ -99,12 +99,11 @@ const submit = () => {
                         aria-controls="headlessui-tabs-panel-:r6:"
                         data-selected=""
                     >
-                        <Link
-                            :href="route('biodata.index')"
-                            class="text-primary !text-primary relative mr-5 block cursor-pointer appearance-none border border-transparent py-5 font-bold dark:border-transparent dark:text-slate-400"
+                        <span
+                            class="text-primary !text-primary relative mr-5 block appearance-none border border-transparent py-5 text-2xl font-bold dark:border-transparent dark:text-slate-400"
                             >Biodata
-                            <hr class="border-primary absolute -bottom-[2px] left-0 w-full border-b-1"
-                        /></Link>
+                            <hr class="border-primary absolute -bottom-[2px] left-0 w-full border-b"
+                        /></span>
                     </li>
                 </ul>
                 <form @submit.prevent="submit">

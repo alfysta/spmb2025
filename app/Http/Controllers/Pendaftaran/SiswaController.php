@@ -59,7 +59,7 @@ class SiswaController extends Controller
 
         $student->update($data);
 
-        return to_route('dashboard');
+        return to_route('pendaftaran.show');
     }
 
     public function show()

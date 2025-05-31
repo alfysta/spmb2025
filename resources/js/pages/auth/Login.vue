@@ -37,7 +37,7 @@ const submit = () => {
 
         <form @submit.prevent="submit" class="flex flex-col gap-6">
             <div class="grid gap-6">
-                <div class="grid gap-2">
+                <div class="grid gap-2 transition ease-in-out hover:scale-99">
                     <Label for="nisn">NISN</Label>
                     <Input
                         id="nisn"
@@ -52,10 +52,10 @@ const submit = () => {
                     <InputError :message="form.errors.nisn" />
                 </div>
 
-                <div class="grid gap-2">
+                <div class="grid gap-2 transition ease-in-out hover:scale-99">
                     <div class="flex items-center justify-between">
                         <Label for="password">Password</Label>
-                        <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm" :tabindex="5">
+                        <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm transition" :tabindex="5">
                             Forgot password?
                         </TextLink>
                     </div>
@@ -72,20 +72,20 @@ const submit = () => {
                 </div>
 
                 <div class="flex items-center justify-between">
-                    <Label for="remember" class="flex items-center space-x-3">
+                    <Label for="remember" class="flex items-center space-x-3 transition ease-in-out hover:scale-99">
                         <Checkbox id="remember" v-model="form.remember" :tabindex="3" />
                         <span>Remember me</span>
                     </Label>
                 </div>
 
-                <Button type="submit" class="mt-4 w-full" :tabindex="4" :disabled="form.processing">
+                <Button type="submit" class="mt-4 w-full py-4 transition ease-in-out hover:scale-99" :tabindex="4" :disabled="form.processing">
                     <FileInput />
                     <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
                     Log in
                 </Button>
             </div>
 
-            <div class="text-muted-foreground text-center text-sm">
+            <div class="text-muted-foreground text-center text-sm transition ease-in-out hover:scale-95">
                 Belum Punya Akun ?
                 <TextLink :href="route('register')" :tabindex="5">Register</TextLink>
             </div>

@@ -52,15 +52,15 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const previewimage = ref(null);
+const previewkk = ref(null);
 
-const handleImage = (event) => {
-    const foto = event.target.files[0];
-    if (!foto) {
+const handleKK = (event) => {
+    const kk = event.target.files[0];
+    if (!kk) {
         return;
     }
-    form.foto = foto;
-    previewimage.value = URL.createObjectURL(foto);
+    form.kk = kk;
+    previewkk.value = URL.createObjectURL(kk);
 };
 
 const submit = () => {
@@ -99,7 +99,7 @@ const submit = () => {
                         data-selected=""
                     >
                         <Link
-                            :href="route('biodata.index')"
+                            :href="route('pendaftaran.show')"
                             class="text-primary !text-primary relative mr-5 block cursor-pointer appearance-none border border-transparent py-5 text-center font-semibold dark:border-transparent dark:text-slate-400"
                             >Umum
                             <hr class="border-primary absolute -bottom-[2px] left-0 w-full border-b-2"
@@ -131,8 +131,12 @@ const submit = () => {
                                 aria-describedby="file_input_help"
                                 id="file_input"
                                 type="file"
+                                @change="handleKK"
+                                @input="form.kk = $event.target.files[0]"
                             />
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">SVG, PNG, JPG or GIF (MAX. 800x400px).</p>
+                            <p class="mt-2 text-xs font-semibold text-red-500 dark:text-red-600" id="file_input_help">
+                                Tipe File untuk kartu Keluarga adalah*.pdf (MAX. 2Mb).
+                            </p>
 
                             <div class="flex h-10">
                                 <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
