@@ -19,35 +19,20 @@ const student = page.props.student[0];
 defineProps({
     user: Object,
     student: Object,
-    page_meta: Object,
 });
 
 const form = useForm({
     name: user.name,
     email: user.email,
-    nisn: user.nisn,
-    tempat_lahir: user.tempat_lahir,
-    tanggal_lahir: user.tanggal_lahir,
-    nik: user.nik,
-    user_id: student.user_id,
-    jenis_kelamin: student.jenis_kelamin,
-    jenjang_pendidikan: student.jenjang_pendidikan,
-    asal_sekolah: student.asal_sekolah,
-    no_hp: student.no_hp,
-    provinsi: student.provinsi,
-    kabupaten: student.kabupaten,
-    kecamatan: student.kecamatan,
-    desa: student.desa,
-    kode_pos: student.kode_pos,
 });
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Berkas Pendaftaran',
-        href: '/pendaftaran',
+        title: 'Berkas Persyaratan',
+        href: '/persyaratan',
     },
     {
-        title: 'Berkas Pendaftaran',
+        title: 'Biodata',
         href: '/persyaratan',
     },
 ];
@@ -67,16 +52,7 @@ const submit = () => {
     router.post(`pendaftaran`, {
         _method: 'patch',
         user_id: form.user_id,
-        jenis_kelamin: form.jenis_kelamin,
-        jenjang_pendidikan: form.jenjang_pendidikan,
-        asal_sekolah: form.asal_sekolah,
-        no_hp: form.no_hp,
-        provinsi: form.provinsi,
-        kabupaten: form.kabupaten,
-        kecamatan: form.kecamatan,
-        desa: form.desa,
-        kode_pos: form.kode_pos,
-        foto: form.foto,
+        kartu_keluarga: form.kartu_keluarga,
     });
 };
 </script>
@@ -126,24 +102,22 @@ const submit = () => {
                     <div class="pt-8">
                         <div class="flex flex-col gap-3 text-sm">
                             <p class="font-medium">Kartu Keluarga</p>
-                            <input
-                                class="border-primary text-primary dark:border-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
-                                aria-describedby="file_input_help"
-                                id="file_input"
-                                type="file"
-                                @change="handleKK"
-                                @input="form.kk = $event.target.files[0]"
-                            />
-                            <p class="mt-2 text-xs font-semibold text-red-500 dark:text-red-600" id="file_input_help">
-                                Tipe File untuk kartu Keluarga adalah*.pdf (MAX. 2Mb).
-                            </p>
-
                             <div class="flex h-10">
                                 <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
-                                    <div class="block max-w-[200px] truncate px-3 sm:max-w-full" title="Kartu Keluarga">Kartu Keluarga</div>
+                                    <input
+                                        class="text-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
+                                        aria-describedby="file_input_help"
+                                        id="file_input"
+                                        type="file"
+                                        @change="handleKK"
+                                        @input="form.kk = $event.target.files[0]"
+                                    />
                                 </div>
                                 <div class="ml-2.5 flex gap-x-2">
-                                    <button
+                                    <a
+                                        :href="previewkk"
+                                        v-if="previewkk"
+                                        target="_blank"
                                         class="border-primary text-primary dark:border-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
                                     >
                                         <div>
@@ -162,8 +136,9 @@ const submit = () => {
                                                     <path d="M21 12q-3.6 6-9 6t-9-6q3.6-6 9-6t9 6"></path>
                                                 </g>
                                             </svg>
-                                        </div></button
-                                    ><button
+                                        </div>
+                                    </a>
+                                    <button
                                         class="border-primary dark:border-primary flex w-32 cursor-pointer items-center justify-start gap-2 rounded-lg bg-green-600 px-[24px] py-[10px] text-center text-sm text-white transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
                                     >
                                         Upload
@@ -185,7 +160,8 @@ const submit = () => {
                                         fill="currentColor"
                                         d="M12 2c5.523 0 10 4.477 10 10a10 10 0 0 1-19.995.324L2 12l.004-.28C2.152 6.327 6.57 2 12 2m.01 13l-.127.007a1 1 0 0 0 0 1.986L12 17l.127-.007a1 1 0 0 0 0-1.986zM12 7a1 1 0 0 0-.993.883L11 8v4l.007.117a1 1 0 0 0 1.986 0L13 12V8l-.007-.117A1 1 0 0 0 12 7"
                                     ></path></svg
-                                >Pastikan dokumen yang diupload terlihat jelas dan bisa terbaca."
+                                >Tipe File untuk kartu Keluarga adalah*.pdf (MAX. 2Mb). Pastikan dokumen yang diupload terlihat jelas dan bisa
+                                terbaca."
                             </p>
                         </div>
                     </div>

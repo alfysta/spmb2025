@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Siswa\Berkas;
 use App\Models\Siswa\Pendaftaran;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -59,6 +60,10 @@ class RegisteredUserController extends Controller
 
         Pendaftaran::create([
             'user_id' => auth()->user()->id,
+        ]);
+
+        Berkas::create([
+            'user_id' => auth()->user()->id
         ]);
 
         return to_route('dashboard');

@@ -23,13 +23,13 @@ class SiswaController extends Controller
             'jenis_kelamin' => 'required',
             'jenjang_pendidikan' => 'required',
             'asal_sekolah' => 'required',
+            'tahun_lulus' => 'required',
             'no_hp' => 'required',
             'provinsi' => 'required',
             'kabupaten' => 'required',
             'kecamatan' => 'required',
             'desa' => 'required',
             'kode_pos' => 'required',
-            'foto' => 'required',
         ]);
 
         $student = Pendaftaran::where('user_id', auth()->user()->id)->first();
@@ -48,6 +48,7 @@ class SiswaController extends Controller
             'jenis_kelamin' => $request->jenis_kelamin,
             'jenjang_pendidikan' => $request->jenjang_pendidikan,
             'asal_sekolah' => $request->asal_sekolah,
+            'tahun_lulus' => $request->tahun_lulus,
             'no_hp' => $request->no_hp,
             'provinsi' => $request->provinsi,
             'kabupaten' => $request->kabupaten,
@@ -59,6 +60,7 @@ class SiswaController extends Controller
 
         $student->update($data);
 
+
         return to_route('pendaftaran.show');
     }
 
@@ -68,5 +70,13 @@ class SiswaController extends Controller
             'user' => auth()->user(),
             'student' => Pendaftaran::where('user_id', auth()->user()->id)->get(),
         ]);
+    }
+
+    public function updateBerkas(Request $request)
+    {
+        $folder = "/images/" . auth()->user()->nisn;
+        $fileName = str()->uuid() . "." . $request->file('kartu_keluarga')->getClientOriginalExtension();
+
+        $kartuKeluarga = $request->file('kartu_keluarga')->storeAs($folder, $fileName, 'public');
     }
 }

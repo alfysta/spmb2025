@@ -20,7 +20,6 @@ const student = page.props.student[0];
 defineProps({
     user: Object,
     student: Object,
-    page_meta: Object,
 });
 
 const form = useForm({
@@ -32,6 +31,7 @@ const form = useForm({
     nik: user.nik,
     user_id: student.user_id,
     jenis_kelamin: student.jenis_kelamin,
+    tahun_lulus: student.tahun_lulus,
     jenjang_pendidikan: student.jenjang_pendidikan,
     asal_sekolah: student.asal_sekolah,
     no_hp: student.no_hp,
@@ -69,6 +69,7 @@ const submit = () => {
         _method: 'patch',
         user_id: form.user_id,
         jenis_kelamin: form.jenis_kelamin,
+        tahun_lulus: form.tahun_lulus,
         jenjang_pendidikan: form.jenjang_pendidikan,
         asal_sekolah: form.asal_sekolah,
         no_hp: form.no_hp,
@@ -124,6 +125,7 @@ const submit = () => {
                                                     />
                                                 </div>
                                                 <input
+                                                    v-if="!student.foto"
                                                     class="border-primary text-primary dark:border-primary component-secondary w-full cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[8px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
                                                     type="file"
                                                     id="foto"
@@ -281,17 +283,17 @@ const submit = () => {
                                                                 class="w-full p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none dark:bg-zinc-950"
                                                             >
                                                                 <option selected>Tahun Lulus</option>
-                                                                <option value="{{ new Date().getFullYear() }}">{{ new Date().getFullYear() }}</option>
-                                                                <option value="{{ new Date().getFullYear()-1 }}">
+                                                                <option :value="new Date().getFullYear()">{{ new Date().getFullYear() }}</option>
+                                                                <option :value="new Date().getFullYear() - 1">
                                                                     {{ new Date().getFullYear() - 1 }}
                                                                 </option>
-                                                                <option value="{{ new Date().getFullYear()-2 }}">
+                                                                <option :value="new Date().getFullYear() - 2">
                                                                     {{ new Date().getFullYear() - 2 }}
                                                                 </option>
-                                                                <option value="{{ new Date().getFullYear()-3 }}">
+                                                                <option :value="new Date().getFullYear() - 3">
                                                                     {{ new Date().getFullYear() - 3 }}
                                                                 </option>
-                                                                <option value="{{ new Date().getFullYear()-4 }}">
+                                                                <option :value="new Date().getFullYear() - 4">
                                                                     {{ new Date().getFullYear() - 4 }}
                                                                 </option>
                                                             </select>
@@ -522,6 +524,7 @@ const submit = () => {
                                                                         v-model="form.kode_pos"
                                                                     />
                                                                 </div>
+                                                                <InputError class="mt-1 text-sm" :message="form.errors.kode_pos" />
                                                             </div>
                                                         </div>
                                                         <p class="mt-2 text-sm text-gray-500"></p>
@@ -534,7 +537,7 @@ const submit = () => {
                             </div>
                         </div>
                     </div>
-                    <Button type="submit" class="mx-4 mt-4 w-1/4" :tabindex="4" :disabled="form.processing">
+                    <Button type="submit" class="mx-4 mt-4 w-1/4 transition ease-in-out hover:scale-97" :tabindex="4" :disabled="form.processing">
                         <FileInput />
                         <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
                         Update Data

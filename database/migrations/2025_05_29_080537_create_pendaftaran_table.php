@@ -14,17 +14,17 @@ return new class extends Migration
         Schema::create('pendaftaran', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id');
-            $table->string('jenis_kelamin');
-            $table->string('jenjang_pendidikan');
-            $table->string('asal_sekolah');
-            $table->string('no_hp');
-            $table->string('tahun_lulus');
-            $table->string('provinsi');
-            $table->string('kabupaten');
-            $table->string('kecamatan');
-            $table->string('desa');
-            $table->string('kode_pos');
-            $table->string('foto');
+            $table->string('jenis_kelamin')->nullable();
+            $table->string('jenjang_pendidikan')->nullable();
+            $table->string('asal_sekolah')->nullable();
+            $table->string('no_hp')->nullable();
+            $table->string('tahun_lulus')->nullable();
+            $table->string('provinsi')->nullable();
+            $table->string('kabupaten')->nullable();
+            $table->string('kecamatan')->nullable();
+            $table->string('desa')->nullable();
+            $table->string('kode_pos')->nullable();
+            $table->string('foto')->nullable();
 
             $table->timestamps();
         });
