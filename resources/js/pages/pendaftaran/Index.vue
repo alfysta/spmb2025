@@ -44,7 +44,11 @@ const form = useForm({
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Silahkan Lengkapi Berkas Pendaftaran',
+        title: 'Berkas Pendaftaran',
+        href: '/biodata',
+    },
+    {
+        title: 'Biodata',
         href: '/pendaftaran',
     },
 ];
@@ -61,7 +65,7 @@ const handleImage = (event) => {
 };
 
 const submit = () => {
-    router.post(`pendaftaran`, {
+    router.post(`biodata`, {
         _method: 'patch',
         user_id: form.user_id,
         jenis_kelamin: form.jenis_kelamin,
@@ -96,34 +100,18 @@ const submit = () => {
                         data-selected=""
                     >
                         <Link
-                            :href="route('pendaftaran.index')"
-                            class="text-primary !text-primary relative mr-5 block cursor-pointer appearance-none border border-transparent py-5 text-center font-semibold dark:border-transparent dark:text-slate-400"
+                            :href="route('biodata.index')"
+                            class="text-primary !text-primary relative mr-5 block cursor-pointer appearance-none border border-transparent py-5 font-bold dark:border-transparent dark:text-slate-400"
                             >Biodata
-                            <hr class="border-primary absolute -bottom-[2px] left-0 w-full border-b-2"
+                            <hr class="border-primary absolute -bottom-[2px] left-0 w-full border-b-1"
                         /></Link>
-                    </li>
-
-                    <li
-                        class="flex-1 focus-visible:outline-none"
-                        id="headlessui-tabs-tab-:r0:"
-                        role="tab"
-                        aria-selected="false"
-                        tabindex="-1"
-                        data-headlessui-state=""
-                        aria-controls="headlessui-tabs-panel-:r4:"
-                    >
-                        <Link
-                            :href="route('pendaftaran.show')"
-                            class="relative mr-5 block cursor-pointer appearance-none border border-transparent py-5 text-center text-slate-700 dark:border-transparent dark:text-slate-400"
-                            >Berkas Persyaratan</Link
-                        >
                     </li>
                 </ul>
                 <form @submit.prevent="submit">
                     <div class="pt-8">
-                        <div class="mx-6 rounded-3xl border-[1px] border-[#F3F4F6] shadow-xl lg:m-0 lg:rounded-none lg:border-none lg:shadow-none">
+                        <div class="mx-6 rounded-xl border-[1px] border-[#F3F4F6] shadow-xl lg:m-0 lg:rounded-none lg:border-none lg:shadow-none">
                             <div class="mt-5 flex flex-col gap-16">
-                                <div class="flex flex-col">
+                                <div class="mx-4 flex flex-col">
                                     <p class="mb-5 text-lg leading-7 font-bold">Informasi Pribadi</p>
                                     <div class="flex w-full gap-x-5">
                                         <div>
@@ -137,7 +125,7 @@ const submit = () => {
                                                     />
                                                 </div>
                                                 <input
-                                                    class="w-full rounded-lg border bg-zinc-950 p-1 text-sm focus:border focus:ring-0 focus:outline-none"
+                                                    class="border-primary text-primary dark:border-primary component-secondary w-full cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[8px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
                                                     type="file"
                                                     id="foto"
                                                     @change="handleImage"
@@ -154,7 +142,7 @@ const submit = () => {
                                                         <div class="flex-1">
                                                             <input
                                                                 placeholder="Masukkan Nama"
-                                                                class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                                class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                                 disabled
                                                                 v-model="form.name"
                                                             />
@@ -170,7 +158,7 @@ const submit = () => {
                                                         <div class="flex-1">
                                                             <input
                                                                 placeholder="Masukkan NIK"
-                                                                class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                                class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                                 disabled
                                                                 v-model="form.nik"
                                                             />
@@ -186,7 +174,7 @@ const submit = () => {
                                                         <div class="flex-1">
                                                             <select
                                                                 v-model="form.jenis_kelamin"
-                                                                class="w-full p-0 text-sm focus:border-none focus:ring-0 focus:outline-none dark:bg-zinc-950"
+                                                                class="w-full p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none dark:bg-zinc-950"
                                                             >
                                                                 <option selected>Pilih Jenis Kelamin</option>
                                                                 <option value="Laki-Laki">Laki-Laki</option>
@@ -197,7 +185,7 @@ const submit = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="grid grid-cols-2 gap-x-5">
+                                            <div class="grid gap-x-5 sm:grid-cols-1 lg:grid-cols-2">
                                                 <div class="mb-5">
                                                     <div class="mb-2 text-sm font-medium">Tempat Lahir</div>
                                                     <div class="mb-0 rounded-xl border-[1px] border-[#D1D5DB] px-4 py-2">
@@ -205,7 +193,7 @@ const submit = () => {
                                                             <div class="flex-1">
                                                                 <input
                                                                     placeholder="Masukkan Tempat Lahir"
-                                                                    class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                                    class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                                     disabled
                                                                     v-model="form.tempat_lahir"
                                                                 />
@@ -221,7 +209,7 @@ const submit = () => {
                                                             <div class="flex-1">
                                                                 <input
                                                                     placeholder="Masukkan Tanggal Lahir"
-                                                                    class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                                    class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                                     disabled
                                                                     v-model="form.tanggal_lahir"
                                                                 />
@@ -242,7 +230,7 @@ const submit = () => {
                                                     <div class="flex-1">
                                                         <input
                                                             placeholder="Masukkan NISN"
-                                                            class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                            class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                             disabled
                                                             v-model="form.nisn"
                                                         />
@@ -258,7 +246,7 @@ const submit = () => {
                                                     <div class="flex-1">
                                                         <input
                                                             placeholder="Masukkan Jenjang Pendidikan"
-                                                            class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                            class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                             v-model="form.jenjang_pendidikan"
                                                         />
                                                     </div>
@@ -275,7 +263,7 @@ const submit = () => {
                                                         <div class="flex-1">
                                                             <input
                                                                 placeholder="Masukkan Asal Sekolah"
-                                                                class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                                class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                                 v-model="form.asal_sekolah"
                                                             />
                                                         </div>
@@ -291,7 +279,7 @@ const submit = () => {
                                                         <div class="flex-1">
                                                             <select
                                                                 v-model="form.tahun_lulus"
-                                                                class="w-full p-0 text-sm focus:border-none focus:ring-0 focus:outline-none dark:bg-zinc-950"
+                                                                class="w-full p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none dark:bg-zinc-950"
                                                             >
                                                                 <option selected>Tahun Lulus</option>
                                                                 <option value="{{ new Date().getFullYear() }}">{{ new Date().getFullYear() }}</option>
@@ -324,7 +312,7 @@ const submit = () => {
                                                     <div class="flex-1">
                                                         <input
                                                             placeholder="Masukkan Email"
-                                                            class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                            class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                             disabled
                                                             v-model="form.email"
                                                         />
@@ -341,7 +329,7 @@ const submit = () => {
                                                         <div class="flex-1">
                                                             <input
                                                                 placeholder="Masukkan No. Hp Aktif"
-                                                                class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                                class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                                 v-model="form.no_hp"
                                                             />
                                                         </div>
@@ -356,8 +344,7 @@ const submit = () => {
                                                         <div class="flex-1">
                                                             <input
                                                                 placeholder="Masukkan No. Hp Aktif Orang Tua / Wali"
-                                                                class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
-                                                                value="085821425857"
+                                                                class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                             />
                                                         </div>
                                                     </div>
@@ -372,7 +359,7 @@ const submit = () => {
                     </div>
 
                     <div class="pt-8">
-                        <div>
+                        <div class="mx-4 mt-5 flex flex-col gap-16">
                             <p class="text-lg leading-7 font-bold">Informasi Jalur Pendaftaran</p>
                             <div class="grid grid-cols-3 gap-x-5">
                                 <div class="mb-5">
@@ -381,7 +368,7 @@ const submit = () => {
                                         <div class="flex gap-2">
                                             <div class="flex-1">
                                                 <input
-                                                    class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                    class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                     value="Jalur Domisili"
                                                 />
                                             </div>
@@ -395,8 +382,7 @@ const submit = () => {
                                         <div class="flex gap-2">
                                             <div class="flex-1">
                                                 <input
-                                                    disabled=""
-                                                    class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                    class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                     value="Nilai Rata-Rata Raport = 74"
                                                 />
                                             </div>
@@ -410,8 +396,7 @@ const submit = () => {
                                         <div class="flex gap-2">
                                             <div class="flex-1">
                                                 <input
-                                                    disabled=""
-                                                    class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                    class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                     value="Jarak 1725 m"
                                                 />
                                             </div>
@@ -421,9 +406,9 @@ const submit = () => {
                                 </div>
                             </div>
                             <p class="text-lg leading-7 font-bold">Data Alamat</p>
-                            <div class="mt-5">
-                                <div class="mt-5">
-                                    <div class="my-5 rounded-lg bg-amber-50 p-4 text-sm text-amber-600">
+                            <div class="mt-1">
+                                <div class="mt-1">
+                                    <div class="my-2 rounded-lg bg-amber-50 p-4 text-sm text-amber-600">
                                         <div class="mb-2 flex items-center">
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -448,8 +433,8 @@ const submit = () => {
                                     <div
                                         class="mx-6 mb-5 rounded-3xl border-[1px] border-[#F3F4F6] shadow-xl lg:m-0 lg:rounded-none lg:border-none lg:shadow-none"
                                     >
-                                        <div class="mt-5 mb-8 flex flex-col gap-16">
-                                            <div class="flex flex-col">
+                                        <div class="mt-2 mb-8 flex flex-col gap-16">
+                                            <div class="mx-4 flex flex-col">
                                                 <div class="grid grid-cols-1 lg:grid-cols-3 lg:gap-x-6">
                                                     <div class="mb-5">
                                                         <div class="mb-2 text-sm font-medium">Provinsi</div>
@@ -458,7 +443,7 @@ const submit = () => {
                                                                 <div class="flex-1">
                                                                     <input
                                                                         placeholder="Masukkan Provinsi"
-                                                                        class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                                        class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                                         v-model="form.provinsi"
                                                                     />
                                                                 </div>
@@ -473,7 +458,7 @@ const submit = () => {
                                                                 <div class="flex-1">
                                                                     <input
                                                                         placeholder="Masukkan Kota / Kabupaten"
-                                                                        class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                                        class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                                         v-model="form.kabupaten"
                                                                     />
                                                                 </div>
@@ -488,7 +473,7 @@ const submit = () => {
                                                                 <div class="flex-1">
                                                                     <input
                                                                         placeholder="Masukkan Kecamatan"
-                                                                        class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                                        class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                                         v-model="form.kecamatan"
                                                                     />
                                                                 </div>
@@ -505,7 +490,7 @@ const submit = () => {
                                                                 <div class="flex-1">
                                                                     <input
                                                                         placeholder="Masukkan Kelurahan / Desa"
-                                                                        class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                                        class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                                         v-model="form.desa"
                                                                     />
                                                                 </div>
@@ -520,7 +505,7 @@ const submit = () => {
                                                                 <div class="flex-1">
                                                                     <input
                                                                         placeholder="Masukkan alamat"
-                                                                        class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                                        class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                                     />
                                                                 </div>
                                                             </div>
@@ -534,7 +519,7 @@ const submit = () => {
                                                                 <div class="flex-1">
                                                                     <input
                                                                         placeholder="Masukkan Kode Pos"
-                                                                        class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                                                        class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
                                                                         v-model="form.kode_pos"
                                                                     />
                                                                 </div>
@@ -550,7 +535,7 @@ const submit = () => {
                             </div>
                         </div>
                     </div>
-                    <Button type="submit" class="mt-4 w-1/4" :tabindex="4" :disabled="form.processing">
+                    <Button type="submit" class="mx-4 mt-4 w-1/4" :tabindex="4" :disabled="form.processing">
                         <FileInput />
                         <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
                         Update Data

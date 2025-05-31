@@ -10,8 +10,10 @@ import {
     SidebarMenuSubButton,
     SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { ChevronRight, type LucideIcon } from 'lucide-vue-next';
+
+import { type SharedData } from '@/types';
 
 defineProps<{
     items: {
@@ -25,11 +27,13 @@ defineProps<{
         }[];
     }[];
 }>();
+
+const page = usePage<SharedData>();
 </script>
 
 <template>
     <SidebarGroup>
-        <SidebarGroupLabel>Platform</SidebarGroupLabel>
+        <SidebarGroupLabel>Data Master</SidebarGroupLabel>
         <SidebarMenu>
             <Collapsible v-for="item in items" :key="item.title" as-child :default-open="item.isActive" class="group/collapsible">
                 <SidebarMenuItem>
@@ -43,7 +47,7 @@ defineProps<{
                     <CollapsibleContent>
                         <SidebarMenuSub>
                             <SidebarMenuSubItem v-for="subItem in item.items" :key="subItem.title">
-                                <SidebarMenuSubButton as-child>
+                                <SidebarMenuSubButton as-child :is-active="item.href === page.url" :tooltip="item.title">
                                     <Link :href="subItem.url">
                                         <span>{{ subItem.title }}</span>
                                     </Link>

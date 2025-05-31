@@ -10,8 +10,6 @@ import { BookOpen, Bot, Frame, GalleryVerticalEnd, Map, PieChart, Settings2, Squ
 
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar';
 
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-
 const props = withDefaults(defineProps<SidebarProps>(), {
     collapsible: 'icon',
 });
@@ -31,10 +29,11 @@ const data = {
             name: 'Dashboard',
             url: '/dashboard',
             icon: Frame,
+            isActive: true,
         },
         {
-            name: 'Berkas Pendaftaran',
-            url: '/pendaftaran',
+            name: 'Biodata',
+            url: '/biodata',
             icon: PieChart,
         },
         {
@@ -135,20 +134,17 @@ const data = {
 </script>
 
 <template>
-    <ScrollArea>
-        <Sidebar v-bind="props">
-            <SidebarHeader>
-                <TeamSwitcher :teams="data.teams" />
-            </SidebarHeader>
-            <SidebarContent>
-                <NavProjects :projects="data.projects" />
-                <NavMain :items="data.navMain" />
-            </SidebarContent>
-            <SidebarFooter>
-                <NavUser />
-            </SidebarFooter>
-            <SidebarRail />
-        </Sidebar>
-        <ScrollBar orientation="vertical" />
-    </ScrollArea>
+    <Sidebar v-bind="props">
+        <SidebarHeader>
+            <TeamSwitcher :teams="data.teams" />
+        </SidebarHeader>
+        <SidebarContent>
+            <NavProjects :projects="data.projects" />
+            <NavMain :items="data.navMain" />
+        </SidebarContent>
+        <SidebarFooter>
+            <NavUser />
+        </SidebarFooter>
+        <SidebarRail />
+    </Sidebar>
 </template>

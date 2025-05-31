@@ -3,7 +3,8 @@ import { type LucideIcon } from 'lucide-vue-next';
 
 import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
 
-import { Link } from '@inertiajs/vue3';
+import { type SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/vue3';
 
 defineProps<{
     projects: {
@@ -12,6 +13,8 @@ defineProps<{
         icon: LucideIcon;
     }[];
 }>();
+
+const page = usePage<SharedData>();
 
 const { isMobile } = useSidebar();
 </script>

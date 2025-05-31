@@ -13,8 +13,8 @@ Route::get('dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/pendaftaran', [SiswaController::class, 'index'])->name('pendaftaran.index');
-    Route::patch('/pendaftaran', [SiswaController::class, 'update'])->name('pendaftaran.update');
+    Route::get('/biodata', [SiswaController::class, 'index'])->name('biodata.index');
+    Route::patch('/biodata', [SiswaController::class, 'update'])->name('biodata.update');
     Route::get('/persyaratan', [SiswaController::class, 'show'])->name('pendaftaran.show');
 });
 

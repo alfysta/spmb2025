@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('jenjang_pendidikan');
             $table->string('asal_sekolah');
             $table->string('no_hp');
+            $table->string('tahun_lulus');
             $table->string('provinsi');
             $table->string('kabupaten');
             $table->string('kecamatan');
