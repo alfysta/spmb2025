@@ -14,16 +14,18 @@ import { ref } from 'vue';
 const page = usePage<SharedData>();
 const user = page.props.auth.user as User;
 
-const student = page.props.student[0];
+const berkas = page.props.berkas[0];
 
 defineProps({
     user: Object,
     student: Object,
+    berkas: Object,
 });
 
 const form = useForm({
     name: user.name,
     email: user.email,
+    kartu_keluarga: berkas.kartu_keluarga,
 });
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -40,16 +42,16 @@ const breadcrumbs: BreadcrumbItem[] = [
 const previewkk = ref(null);
 
 const handleKK = (event) => {
-    const kk = event.target.files[0];
-    if (!kk) {
+    const kartu_keluarga = event.target.files[0];
+    if (!kartu_keluarga) {
         return;
     }
-    form.kk = kk;
-    previewkk.value = URL.createObjectURL(kk);
+    form.kartu_keluarga = kartu_keluarga;
+    previewkk.value = URL.createObjectURL(kartu_keluarga);
 };
 
 const submit = () => {
-    router.post(`pendaftaran`, {
+    router.post(`persyaratan`, {
         _method: 'patch',
         user_id: form.user_id,
         kartu_keluarga: form.kartu_keluarga,
@@ -58,7 +60,7 @@ const submit = () => {
 </script>
 
 <template>
-    <Head title="Pendaftaran" />
+    <Head title="Berkas Persyaratan" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
@@ -105,18 +107,20 @@ const submit = () => {
                             <div class="flex h-10">
                                 <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
                                     <input
+                                        v-if="!berkas.kartu_keluarga"
                                         class="text-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
                                         aria-describedby="file_input_help"
                                         id="file_input"
                                         type="file"
                                         @change="handleKK"
-                                        @input="form.kk = $event.target.files[0]"
+                                        @input="form.kartu_keluarga = $event.target.files[0]"
                                     />
+                                    <p v-if="berkas.kartu_keluarga" class="ml-4 font-medium">Kartu Keluarga Telah Terupload</p>
                                 </div>
                                 <div class="ml-2.5 flex gap-x-2">
                                     <a
-                                        :href="previewkk"
-                                        v-if="previewkk"
+                                        :href="previewkk ? previewkk : '/storage/' + berkas.kartu_keluarga"
+                                        v-if="previewkk ? previewkk : berkas.kartu_keluarga"
                                         target="_blank"
                                         class="border-primary text-primary dark:border-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
                                     >

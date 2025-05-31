@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Pendaftaran;
 
 use App\Http\Controllers\Controller;
+use App\Models\Siswa\Berkas;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Siswa\Pendaftaran;
 use Illuminate\Http\Request;
@@ -69,14 +70,18 @@ class SiswaController extends Controller
         return Inertia::render('pendaftaran/Berkas', [
             'user' => auth()->user(),
             'student' => Pendaftaran::where('user_id', auth()->user()->id)->get(),
+            'berkas' => Berkas::where('user_id', auth()->user()->id)->get(),
         ]);
     }
 
     public function updateBerkas(Request $request)
     {
+        $berkas = Berkas::where('user_id', auth()->user()->id)->first();
         $folder = "/images/" . auth()->user()->nisn;
         $fileName = str()->uuid() . "." . $request->file('kartu_keluarga')->getClientOriginalExtension();
 
         $kartuKeluarga = $request->file('kartu_keluarga')->storeAs($folder, $fileName, 'public');
+        $berkas->update(['kartu_keluarga' => $kartuKeluarga]);
+        return to_route('pendaftaran.show');
     }
 }
