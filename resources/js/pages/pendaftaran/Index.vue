@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 
-import { useForm, usePage } from '@inertiajs/vue3';
+import { usePage } from '@inertiajs/vue3';
 
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
-import { type SharedData, type User } from '@/types';
-import { router } from '@inertiajs/vue3';
+import { type BreadcrumbItem, type SharedData, type User } from '@/types';
 import { FileInput, LoaderCircle } from 'lucide-vue-next';
+
+import { useForm } from '@inertiajs/vue3';
+
+import { router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 const page = usePage<SharedData>();
@@ -119,8 +121,8 @@ const submit = () => {
                                                 <div class="text-sm">Pas Foto (3x4) cm</div>
                                                 <div class="my-4 aspect-[3/4] w-full rounded-lg bg-gray-400">
                                                     <img
-                                                        :src="form.foto ? previewimage : student.image_url"
-                                                        v-if="student.image_url ? student.image_url : previewimage"
+                                                        :src="form.foto ? previewimage : student.preview_url"
+                                                        v-if="student.preview_url ? student.preview_url : previewimage"
                                                         class="h-full w-full rounded-lg object-cover"
                                                     />
                                                 </div>

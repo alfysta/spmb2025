@@ -26,7 +26,7 @@ class Media extends Model
                     'image/webp',
                     'image/jpeg'
                 ],
-                'preview_url' => url("storage/media/{$this->created_at->format('Y/m/d')}/{$this->id}/{$this->file_name}")
+                'preview_url' => url("storage/images/{$this->nisn}/{$this->file_name}")
             ],
             'audio' => [
                 'mimes' => [

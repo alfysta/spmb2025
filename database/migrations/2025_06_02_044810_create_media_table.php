@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('file_name');
             $table->string('mime_type');
             $table->integer('size');
+            $table->string('nisn');
             $table->unsignedBigInteger('author_id');
             $table->timestamps();
 

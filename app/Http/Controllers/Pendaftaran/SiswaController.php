@@ -74,12 +74,23 @@ class SiswaController extends Controller
 
     public function updateBerkas(Request $request)
     {
-        $berkas = Berkas::where('user_id', auth()->user()->id)->first();
-        $folder = "/images/" . auth()->user()->nisn;
-        $fileName = "kartu_keluarga." . $request->file('kartu_keluarga')->getClientOriginalExtension();
+        $berkas = Berkas::get();
+        request()->validate([
+            'file' => ['file', 'max:5000']
+        ], [
+            'max' => 'File yang anda upload lebih dari 5 Mb'
+        ]);
 
-        $kartuKeluarga = $request->file('kartu_keluarga')->storeAs($folder, $fileName, 'public');
-        $berkas->update(['kartu_keluarga' => $kartuKeluarga]);
-        return to_route('pendaftaran.show');
+        $file = request()->file('file');
+
+        Berkas::create([
+            'user_id' => auth()->user()->id,
+            'kartu_keluarga' => $file->store("images/" . auth()->user()->nisn, 'public'),
+        ]);
+
+        return [
+            'id' => $berkas->id,
+            'preview_url' => $berkas->preview_url
+        ];
     }
 }

@@ -21,22 +21,24 @@ class MediaController extends Controller
     public function store()
     {
         request()->validate([
-            'file' => ['file', 'max:512000']
+            'file' => ['file', 'max:5000']
         ], [
-            'max' => 'File cannot be larger than 512MB.'
+            'max' => 'File yang anda upload lebih dari 5 Mb'
         ]);
 
         $file = request()->file('file');
 
         $media = Media::create([
             'name' => $file->getClientOriginalName(),
-            'file_name' => $file->getClientOriginalName(),
+            'file_name' => 'kartu_keluarga' . auth()->user()->nisn . $file->getClientOriginalName(),
             'mime_type' => $file->getMimeType(),
             'size' => $file->getSize(),
+            'nisn' => auth()->user()->nisn,
             'author_id' => auth()->id()
         ]);
 
-        $directory = "media/{$media->created_at->format('Y/m/d')}/{$media->id}";
+        // $directory = "media/{$media->created_at->format('Y/m/d')}/{$media->id}";
+        $directory = "images/" . auth()->user()->nisn;
         $file->storeAs($directory, $media->file_name, 'public');
 
         return [

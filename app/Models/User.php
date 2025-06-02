@@ -48,4 +48,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Pendaftaran::class);
     }
+
+    public function media()
+    {
+        return $this->hasMany(Media::class, 'author_id');
+    }
 }

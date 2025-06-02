@@ -35,13 +35,17 @@
                         <input ref="files" @input="onSelectedFiles" type="file" name="files" multiple class="sr-only" />
                     </label>
 
-                    <p class="mt-4 text-xs text-gray-600">Maximum upload file size: 512MB.</p>
+                    <p class="mt-4 text-xs text-gray-600">Maximum upload file size: 5MB.</p>
                 </div>
             </div>
 
             <ul class="my-6 divide-y divide-gray-200 rounded bg-white shadow">
-                <li v-for="(item, index) in media" :key="index" class="flex items-center justify-between p-3">
-                    <div class="text-sm text-gray-700">{{ item.file.name }}</div>
+                <li v-for="(item, index) in media" :key="index" class="flex items-center space-x-2 p-3">
+                    <div class="h-9 w-9 flex-shrink-0 bg-gray-300">
+                        <img :src="item.preview_url" class="h-full w-full rounded" :alt="item.file.name" />
+                    </div>
+
+                    <div class="flex-1 truncate text-sm text-gray-700">{{ item.file.name }}</div>
 
                     <div
                         v-if="!item.uploaded && !item.error"
@@ -52,7 +56,23 @@
                     </div>
 
                     <div v-if="item.error" class="text-sm text-red-600">{{ item.error }}</div>
-                    <Link href="#" v-if="item.uploaded" class="text-sm text-indigo-600 underline">Edit</Link>
+                    <a target="_blank" :href="item.preview_url" v-if="item.uploaded" class="text-sm text-indigo-600 underline">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlns:xlink="http://www.w3.org/1999/xlink"
+                            aria-hidden="true"
+                            role="img"
+                            class="iconify iconify--tabler mr-0.5 text-xl"
+                            width="1em"
+                            height="1em"
+                            viewBox="0 0 24 24"
+                        >
+                            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0-4 0"></path>
+                                <path d="M21 12q-3.6 6-9 6t-9-6q3.6-6 9-6t9 6"></path>
+                            </g>
+                        </svg>
+                    </a>
                 </li>
             </ul>
         </div>
@@ -95,6 +115,8 @@ export default {
                     progress: 0,
                     error: null,
                     uploaded: false,
+                    preview_url: null,
+                    id: null,
                 });
             });
 
@@ -110,9 +132,13 @@ export default {
                                 media.progress = Math.round((event.loaded * 100) / event.total);
                             },
                         })
-                        .then(() => (media.uploaded = true))
+                        .then(({ data }) => {
+                            media.uploaded = true;
+                            media.id = data.id;
+                            media.preview_url = data.preview_url;
+                        })
                         .catch((error) => {
-                            media.error = `Upload failed. Please try again later.`;
+                            media.error = `Upload fail. Please try again later.`;
 
                             if (error?.response.status === 422) {
                                 media.error = error.response.data.errors.file[0];
