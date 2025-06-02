@@ -163,6 +163,7 @@ const submit = () => {
                                                                 disabled
                                                                 v-model="form.nik"
                                                             />
+                                                            <InputError class="mt-1 text-sm" :message="form.errors.nik" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -182,9 +183,9 @@ const submit = () => {
                                                                 <option value="Perempuan">Perempuan</option>
                                                             </select>
                                                         </div>
-                                                        <InputError class="mt-1 text-sm" :message="form.errors.jenis_kelamin" />
                                                     </div>
                                                 </div>
+                                                <InputError class="mt-1 text-sm" :message="form.errors.jenis_kelamin" />
                                             </div>
                                             <div class="grid gap-x-5 sm:grid-cols-1 lg:grid-cols-2">
                                                 <div class="mb-5">
@@ -480,7 +481,7 @@ const submit = () => {
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <p class="mt-2 text-sm text-gray-500"></p>
+                                                        <p class="mt-2 text-sm text-red-500" :message="form.errors.kecamatan" />
                                                     </div>
                                                 </div>
                                                 <div class="grid grid-cols-1 lg:grid-cols-3 lg:gap-x-6">

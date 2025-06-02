@@ -60,8 +60,6 @@ class SiswaController extends Controller
         ]);
 
         $student->update($data);
-
-
         return to_route('pendaftaran.show');
     }
 
@@ -78,7 +76,7 @@ class SiswaController extends Controller
     {
         $berkas = Berkas::where('user_id', auth()->user()->id)->first();
         $folder = "/images/" . auth()->user()->nisn;
-        $fileName = str()->uuid() . "." . $request->file('kartu_keluarga')->getClientOriginalExtension();
+        $fileName = "kartu_keluarga." . $request->file('kartu_keluarga')->getClientOriginalExtension();
 
         $kartuKeluarga = $request->file('kartu_keluarga')->storeAs($folder, $fileName, 'public');
         $berkas->update(['kartu_keluarga' => $kartuKeluarga]);

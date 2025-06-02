@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\Pendaftaran\SiswaController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -17,7 +18,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/biodata', [SiswaController::class, 'update'])->name('biodata.update');
     Route::get('/persyaratan', [SiswaController::class, 'show'])->name('pendaftaran.show');
     Route::patch('/persyaratan', [SiswaController::class, 'updateBerkas'])->name('pendaftaran.updateBerkas');
+
+    Route::get('/media/create', [MediaController::class, 'index'])->name('media.index');
+    Route::post('/media', [MediaController::class, 'store'])->name('media.store');
 });
+
+
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
