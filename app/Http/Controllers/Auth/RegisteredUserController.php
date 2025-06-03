@@ -66,6 +66,6 @@ class RegisteredUserController extends Controller
             'user_id' => auth()->user()->id
         ]);
 
-        return to_route('dashboard');
+        return to_route('biodata.index');
     }
 }

@@ -7,6 +7,7 @@ use App\Models\Siswa\Berkas;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Siswa\Pendaftaran;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class SiswaController extends Controller
@@ -34,17 +35,6 @@ class SiswaController extends Controller
         ]);
 
         $student = Pendaftaran::where('user_id', auth()->user()->id)->first();
-
-        if ($request->file('foto')) {
-
-            $folder = "/images/" . auth()->user()->nisn;
-            $fileName = str()->uuid() . "." . $request->file('foto')->getClientOriginalExtension();
-
-            $images = $request->file('foto')->storeAs($folder, $fileName, 'public');
-        } else {
-            $images = $student->foto;
-        }
-
         $data = ([
             'jenis_kelamin' => $request->jenis_kelamin,
             'jenjang_pendidikan' => $request->jenjang_pendidikan,
@@ -56,7 +46,6 @@ class SiswaController extends Controller
             'kecamatan' => $request->kecamatan,
             'desa' => $request->desa,
             'kode_pos' => $request->kode_pos,
-            'foto' => $images
         ]);
 
         $student->update($data);
@@ -72,25 +61,53 @@ class SiswaController extends Controller
         ]);
     }
 
+    public function updateImage(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|max:5048',
+        ]);
+
+        $user = Auth::user();
+
+        // Hapus gambar lama jika ada
+        if ($user->image) {
+            Storage::disk('public')->delete($user->image);
+        }
+
+        // Simpan gambar baru
+        $path = $request->file('image')->store("images/{$user->nisn}", 'public');
+
+        $user->image = $path;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Foto profil berhasil diupload.',
+            'image_url' => asset("storage/$path"),
+        ]);
+    }
     public function updateBerkas(Request $request)
     {
-        $berkas = Berkas::get();
-        request()->validate([
-            'file' => ['file', 'max:5000']
-        ], [
-            'max' => 'File yang anda upload lebih dari 5 Mb'
+        $berkas = Berkas::where('user_id', auth()->user()->id)->first();
+        $request->validate([
+            'type' => 'required|in:kartu_keluarga,ijazah,akte_kelahiran,ktp_ortu,sptjm,rapor',
+            'file' => 'required|mimes:pdf|max:5120',
         ]);
 
-        $file = request()->file('file');
+        $user = Auth::user();
+        $type = $request->type;
 
-        Berkas::create([
-            'user_id' => auth()->user()->id,
-            'kartu_keluarga' => $file->store("images/" . auth()->user()->nisn, 'public'),
+        if ($berkas->$type) {
+            Storage::disk('public')->delete($berkas->$type);
+        }
+
+        $path = $request->file('file')->store("images/{$user->nisn}", 'public');
+
+        $berkas->$type = $path;
+        $berkas->save();
+
+        return response()->json([
+            'message' => ucfirst(str_replace('_', ' ', $type)) . ' berhasil diupload.',
+            'url' => asset("storage/{$path}")
         ]);
-
-        return [
-            'id' => $berkas->id,
-            'preview_url' => $berkas->preview_url
-        ];
     }
 }

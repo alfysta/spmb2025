@@ -1,81 +1,147 @@
-<script>
+<script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { type BreadcrumbItem, type SharedData, type User } from '@/types';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
+import axios from 'axios';
+import { ref } from 'vue';
 
 import { Button } from '@/components/ui/button';
-import { useForm, usePage } from '@inertiajs/vue3';
-import axios from 'axios';
+import { Link } from '@inertiajs/vue3';
 import { FileInput, LoaderCircle } from 'lucide-vue-next';
 
-export default {
-    data() {
-        return {
-            dragging: false,
-            berkas: [],
-        };
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Berkas Persyaratan',
+        href: '/persyaratan',
     },
-    components: {
-        AppLayout,
-        Link,
-        Head,
-        Button,
-        FileInput,
-        LoaderCircle,
-        useForm,
-        usePage,
+    {
+        title: 'Umum',
+        href: '/persyaratan',
     },
-    methods: {
-        onSelectedFiles($event) {
-            let files = [...$event.target.files];
-            this.uploadFiles(files);
-            this.$refs.files.value = null;
-        },
-        uploadFiles(files) {
-            files.forEach((file) => {
-                this.berkas.unshift({
-                    file: file,
-                    progress: 0,
-                    error: null,
-                    uploaded: false,
-                    preview_url: null,
-                    id: null,
-                });
-            });
+];
 
-            this.berkas
-                .filter((berkas) => !berkas.uploaded)
-                .forEach((berkas) => {
-                    let form = new FormData();
-                    form.append('file', berkas.file);
+const page = usePage<SharedData>();
+const user = page.props.auth.user as User;
 
-                    axios
-                        .post(this.route('pendaftaran.updateBerkas'), form, {
-                            onUploadProgress: (event) => {
-                                berkas.progress = Math.round((event.loaded * 100) / event.total);
-                            },
-                        })
-                        .then(({ data }) => {
-                            berkas.uploaded = true;
-                            berkas.id = data.id;
-                            berkas.preview_url = data.preview_url;
-                        })
-                        .catch((error) => {
-                            berkas.error = `Upload fail. Please try again later.`;
+const berkas = page.props.berkas[0];
 
-                            if (error?.response.status === 422) {
-                                berkas.error = error.response.data.errors.file[0];
-                            }
-                        });
-                });
-        },
-    },
+defineProps({
+    user: Object,
+    student: Object,
+    berkas: Object,
+});
+
+const form = useForm({
+    name: user.name,
+    email: user.email,
+    kartu_keluarga: berkas.kartu_keluarga,
+    ijazah: berkas.ijazah,
+    akte_kelahiran: berkas.akte_kelahiran,
+    ktp_ortu: berkas.ktp_ortu,
+    sptjm: berkas.sptjm,
+    rapor: berkas.rapor,
+});
+
+//data dibawah sudah fix
+
+const kkFile = ref(null);
+const kkProgress = ref(0);
+const kkUrl = ref(null);
+const kkMessage = ref('');
+
+const ijazahFile = ref(null);
+const ijazahProgress = ref(0);
+const ijazahUrl = ref(null);
+const ijazahMessage = ref('');
+
+const akteFile = ref(null);
+const akteProgress = ref(0);
+const akteUrl = ref(null);
+const akteMessage = ref('');
+
+const ktpFile = ref(null);
+const ktpProgress = ref(0);
+const ktpUrl = ref(null);
+const ktpMessage = ref('');
+
+const sptjmFile = ref(null);
+const sptjmProgress = ref(0);
+const sptjmUrl = ref(null);
+const sptjmMessage = ref('');
+
+const raporFile = ref(null);
+const raporProgress = ref(0);
+const raporUrl = ref(null);
+const raporMessage = ref('');
+
+const uploadPdf = async (type, fileRef, progressRef, messageRef, urlRef) => {
+    const formData = new FormData();
+    formData.append('type', type);
+    formData.append('file', fileRef.value);
+
+    progressRef.value = 0;
+    messageRef.value = '';
+
+    try {
+        const res = await axios.post('/persyaratan/umum', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+            onUploadProgress: (e) => {
+                progressRef.value = Math.round((e.loaded * 100) / e.total);
+            },
+        });
+
+        messageRef.value = res.data.message;
+        urlRef.value = res.data.url;
+    } catch (err) {
+        messageRef.value = 'Upload gagal. Pastikan file PDF dan maksimal 5MB.';
+    } finally {
+        progressRef.value = false;
+    }
+};
+
+const handleKkUpload = async (e) => {
+    kkFile.value = e.target.files[0];
+    if (!kkFile.value) return;
+    await uploadPdf('kartu_keluarga', kkFile, kkProgress, kkMessage, kkUrl);
+};
+
+const handleIjazahUpload = async (e) => {
+    ijazahFile.value = e.target.files[0];
+    if (!ijazahFile.value) return;
+    await uploadPdf('ijazah', ijazahFile, ijazahProgress, ijazahMessage, ijazahUrl);
+};
+
+const handleAkteUpload = async (e) => {
+    akteFile.value = e.target.files[0];
+    if (!akteFile.value) return;
+    await uploadPdf('akte_kelahiran', akteFile, akteProgress, akteMessage, akteUrl);
+};
+
+const handleKTPUpload = async (e) => {
+    ktpFile.value = e.target.files[0];
+    if (!ktpFile.value) return;
+    await uploadPdf('ktp_ortu', ktpFile, ktpProgress, ktpMessage, ktpUrl);
+};
+
+const handleSPTJMUpload = async (e) => {
+    sptjmFile.value = e.target.files[0];
+    if (!sptjmFile.value) return;
+    await uploadPdf('sptjm', sptjmFile, sptjmProgress, sptjmMessage, sptjmUrl);
+};
+
+const handleRaporUpload = async (e) => {
+    raporFile.value = e.target.files[0];
+    if (!raporFile.value) return;
+    await uploadPdf('rapor', raporFile, raporProgress, raporMessage, raporUrl);
 };
 </script>
 
 <template>
     <Head title="Berkas Persyaratan" />
 
-    <AppLayout>
+    <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
             <div>
                 <ul class="mt-4 flex border-b">
@@ -113,84 +179,614 @@ export default {
                         >
                     </li>
                 </ul>
-                <div class="pt-8">
-                    <div class="flex flex-col gap-3 text-sm">
-                        <p class="font-medium">Kartu Keluarga</p>
-                        <div class="flex h-10">
-                            <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
-                                <label
-                                    class="inline-flex h-9 items-center rounded border border-zinc-900 bg-white px-4 text-sm font-medium text-gray-700 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2"
-                                >
-                                    Pilih File
-                                    <input ref="files" @input="onSelectedFiles" type="file" name="files" class="sr-only" />
-                                </label>
-                                <li v-for="(item, index) in berkas" :key="index" class="flex items-center space-x-2 p-3">
-                                    <div class="h-9 w-9 flex-shrink-0 bg-gray-300">
-                                        <img :src="item.preview_url" class="h-full w-full rounded" :alt="item.file.name" />
-                                    </div>
-
-                                    <div class="flex-1 truncate text-sm text-gray-700">{{ item.file.name }}</div>
-
-                                    <div
-                                        v-if="!item.uploaded && !item.error"
-                                        class="relative flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-gray-200 shadow-inner"
+                <form @submit.prevent="submit">
+                    <div class="pt-8">
+                        <div class="flex flex-col gap-3 text-sm">
+                            <p class="font-medium">Kartu Keluarga</p>
+                            <div class="flex h-10">
+                                <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
+                                    <input
+                                        v-if="!berkas.kartu_keluarga"
+                                        class="text-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
+                                        aria-describedby="file_input_help"
+                                        id="file_input"
+                                        type="file"
+                                        accept="application/pdf"
+                                        @change="handleKkUpload"
+                                    />
+                                    <div v-if="kkProgress" class="h-4 rounded bg-indigo-600" :style="{ width: kkProgress + '%' }"></div>
+                                    <p v-if="kkMessage" class="text-sm font-semibold text-green-600">{{ kkMessage }}</p>
+                                    <p v-if="berkas.kartu_keluarga" class="ml-4 font-medium">Kartu Keluarga Telah Terupload</p>
+                                </div>
+                                <div v-if="kkProgress" class="h-4 rounded-xl bg-blue-200">
+                                    <div class="h-4 rounded bg-blue-600" :style="{ width: kkProgress + '%' }"></div>
+                                </div>
+                                <div class="ml-2.5 flex gap-x-2">
+                                    <a
+                                        :href="kkFile"
+                                        v-if="kkUrl"
+                                        target="_blank"
+                                        class="border-primary text-primary dark:border-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
                                     >
-                                        <div
-                                            class="absolute top-0 left-0 inline-block w-full bg-indigo-600"
-                                            :style="`width: ${item.progress}%`"
-                                        ></div>
-                                        <div class="text-shadow relative z-10 text-center text-xs font-semibold text-white drop-shadow">
-                                            {{ item.progress }}%
+                                        <div>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                aria-hidden="true"
+                                                role="img"
+                                                class="iconify iconify--tabler mr-0.5 text-lg"
+                                                width="1em"
+                                                height="1em"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0-4 0"></path>
+                                                    <path d="M21 12q-3.6 6-9 6t-9-6q3.6-6 9-6t9 6"></path>
+                                                </g>
+                                            </svg>
                                         </div>
-                                    </div>
-
-                                    <div v-if="item.error" class="text-sm text-red-600">{{ item.error }}</div>
-                                    <a target="_blank" :href="item.preview_url" v-if="item.uploaded" class="text-sm text-indigo-600 underline">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            xmlns:xlink="http://www.w3.org/1999/xlink"
-                                            aria-hidden="true"
-                                            role="img"
-                                            class="iconify iconify--tabler mr-0.5 text-xl"
-                                            width="1em"
-                                            height="1em"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                                                <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0-4 0"></path>
-                                                <path d="M21 12q-3.6 6-9 6t-9-6q3.6-6 9-6t9 6"></path>
-                                            </g>
-                                        </svg>
                                     </a>
-                                </li>
+                                    <a
+                                        :href="/storage/ + form.kartu_keluarga"
+                                        v-if="form.kartu_keluarga"
+                                        target="_blank"
+                                        class="border-primary dark:border-primary flex w-32 cursor-pointer items-center justify-start gap-2 rounded-lg bg-green-600 px-[24px] py-[10px] text-center text-sm text-white transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
+                                    >
+                                        <div>Lihat Berkas</div>
+                                    </a>
+                                </div>
                             </div>
-                            <div class="ml-2.5 flex gap-x-2">
-                                <a
-                                    target="_blank"
-                                    class="border-primary text-primary dark:border-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
+                            <p class="flex items-center">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                                    aria-hidden="true"
+                                    role="img"
+                                    class="iconify iconify--tabler aspect-square w-6 text-lg text-amber-600"
+                                    width="1em"
+                                    height="1em"
+                                    viewBox="0 0 24 24"
                                 >
-                                    <div>
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            xmlns:xlink="http://www.w3.org/1999/xlink"
-                                            aria-hidden="true"
-                                            role="img"
-                                            class="iconify iconify--tabler mr-0.5 text-lg"
-                                            width="1em"
-                                            height="1em"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                                                <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0-4 0"></path>
-                                                <path d="M21 12q-3.6 6-9 6t-9-6q3.6-6 9-6t9 6"></path>
-                                            </g>
-                                        </svg>
-                                    </div>
-                                </a>
-                            </div>
+                                    <path
+                                        fill="currentColor"
+                                        d="M12 2c5.523 0 10 4.477 10 10a10 10 0 0 1-19.995.324L2 12l.004-.28C2.152 6.327 6.57 2 12 2m.01 13l-.127.007a1 1 0 0 0 0 1.986L12 17l.127-.007a1 1 0 0 0 0-1.986zM12 7a1 1 0 0 0-.993.883L11 8v4l.007.117a1 1 0 0 0 1.986 0L13 12V8l-.007-.117A1 1 0 0 0 12 7"
+                                    ></path></svg
+                                >Tipe File untuk kartu Keluarga adalah*.pdf (MAX. 2Mb). Pastikan dokumen yang diupload terlihat jelas dan bisa
+                                terbaca."
+                            </p>
                         </div>
                     </div>
-                </div>
+                    <p class="mt-8 text-lg leading-7 font-bold">Dokumen Calon Peserta</p>
+                    <div class="mt-5">
+                        <div class="flex flex-col gap-3 text-sm">
+                            <p class="font-medium">Ijazah SMP/ Sederajat / Paket B / Ijazah luar negeri</p>
+                            <div class="flex h-10">
+                                <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
+                                    <input
+                                        v-if="!berkas.ijazah"
+                                        class="text-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
+                                        aria-describedby="file_input_help"
+                                        id="file_input"
+                                        type="file"
+                                        accept="application/pdf"
+                                        @change="handleIjazahUpload"
+                                    />
+                                    <div v-if="ijazahProgress" class="h-4 rounded-xl bg-indigo-600" :style="{ width: ijazahProgress + '%' }"></div>
+                                    <p v-if="ijazahMessage" class="text-sm font-semibold text-green-600">{{ ijazahMessage }}</p>
+                                    <p v-if="berkas.ijazah" class="ml-4 font-medium">Ijazah Telah Terupload</p>
+                                </div>
+                                <div class="ml-2.5 flex gap-x-2">
+                                    <a
+                                        :href="ijazahFile"
+                                        v-if="ijazahUrl"
+                                        target="_blank"
+                                        class="border-primary text-primary dark:border-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
+                                    >
+                                        <div>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                aria-hidden="true"
+                                                role="img"
+                                                class="iconify iconify--tabler mr-0.5 text-lg"
+                                                width="1em"
+                                                height="1em"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0-4 0"></path>
+                                                    <path d="M21 12q-3.6 6-9 6t-9-6q3.6-6 9-6t9 6"></path>
+                                                </g>
+                                            </svg>
+                                        </div>
+                                    </a>
+                                    <a
+                                        :href="/storage/ + form.ijazah"
+                                        v-if="form.ijazah"
+                                        target="_blank"
+                                        class="border-primary dark:border-primary flex w-32 cursor-pointer items-center justify-start gap-2 rounded-lg bg-green-600 px-[24px] py-[10px] text-center text-sm text-white transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
+                                    >
+                                        <div>Lihat Berkas</div>
+                                    </a>
+                                </div>
+                            </div>
+                            <p class="flex items-center">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                                    aria-hidden="true"
+                                    role="img"
+                                    class="iconify iconify--tabler aspect-square w-6 text-lg text-amber-600"
+                                    width="1em"
+                                    height="1em"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        fill="currentColor"
+                                        d="M12 2c5.523 0 10 4.477 10 10a10 10 0 0 1-19.995.324L2 12l.004-.28C2.152 6.327 6.57 2 12 2m.01 13l-.127.007a1 1 0 0 0 0 1.986L12 17l.127-.007a1 1 0 0 0 0-1.986zM12 7a1 1 0 0 0-.993.883L11 8v4l.007.117a1 1 0 0 0 1.986 0L13 12V8l-.007-.117A1 1 0 0 0 12 7"
+                                    ></path></svg
+                                >Tipe File untuk Ijazah adalah*.pdf (MAX. 2Mb). Pastikan dokumen yang diupload terlihat jelas dan bisa terbaca."
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <div class="flex flex-col gap-3 text-sm">
+                            <p class="font-medium">Akta kelahiran</p>
+                            <div class="flex h-10">
+                                <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
+                                    <input
+                                        v-if="!berkas.akte_kelahiran"
+                                        class="text-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
+                                        aria-describedby="file_input_help"
+                                        id="file_input"
+                                        type="file"
+                                        accept="application/pdf"
+                                        @change="handleAkteUpload"
+                                    />
+                                    <div v-if="akteProgress" class="h-4 rounded-xl bg-indigo-600" :style="{ width: akteProgress + '%' }"></div>
+                                    <p v-if="akteMessage" class="text-sm font-semibold text-green-600">{{ akteMessage }}</p>
+                                    <p v-if="berkas.akte_kelahiran" class="ml-4 font-medium">Akta kelahiran Telah Terupload</p>
+                                </div>
+                                <div class="ml-2.5 flex gap-x-2">
+                                    <a
+                                        :href="akteFile"
+                                        v-if="akteUrl"
+                                        target="_blank"
+                                        class="border-primary text-primary dark:border-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
+                                    >
+                                        <div>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                aria-hidden="true"
+                                                role="img"
+                                                class="iconify iconify--tabler mr-0.5 text-lg"
+                                                width="1em"
+                                                height="1em"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0-4 0"></path>
+                                                    <path d="M21 12q-3.6 6-9 6t-9-6q3.6-6 9-6t9 6"></path>
+                                                </g>
+                                            </svg>
+                                        </div>
+                                    </a>
+                                    <a
+                                        :href="/storage/ + form.akte_kelahiran"
+                                        v-if="form.akte_kelahiran"
+                                        target="_blank"
+                                        class="border-primary dark:border-primary flex w-32 cursor-pointer items-center justify-start gap-2 rounded-lg bg-green-600 px-[24px] py-[10px] text-center text-sm text-white transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
+                                    >
+                                        <div>Lihat Berkas</div>
+                                    </a>
+                                </div>
+                            </div>
+                            <p class="flex items-center">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                                    aria-hidden="true"
+                                    role="img"
+                                    class="iconify iconify--tabler aspect-square w-6 text-lg text-amber-600"
+                                    width="1em"
+                                    height="1em"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        fill="currentColor"
+                                        d="M12 2c5.523 0 10 4.477 10 10a10 10 0 0 1-19.995.324L2 12l.004-.28C2.152 6.327 6.57 2 12 2m.01 13l-.127.007a1 1 0 0 0 0 1.986L12 17l.127-.007a1 1 0 0 0 0-1.986zM12 7a1 1 0 0 0-.993.883L11 8v4l.007.117a1 1 0 0 0 1.986 0L13 12V8l-.007-.117A1 1 0 0 0 12 7"
+                                    ></path></svg
+                                >Tipe File untuk Akta kelahiran adalah*.pdf (MAX. 2Mb). Pastikan dokumen yang diupload terlihat jelas dan bisa
+                                terbaca."
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <div class="flex flex-col gap-3 text-sm">
+                            <p class="font-medium">KTP Wali</p>
+                            <div class="flex h-10">
+                                <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
+                                    <input
+                                        v-if="!berkas.ktp_ortu"
+                                        class="text-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
+                                        aria-describedby="file_input_help"
+                                        id="file_input"
+                                        type="file"
+                                        accept="application/pdf"
+                                        @change="handleKTPUpload"
+                                    />
+                                    <div v-if="ktpProgress" class="h-4 rounded-xl bg-indigo-600" :style="{ width: ktpProgress + '%' }"></div>
+                                    <p v-if="ktpMessage" class="text-sm font-semibold text-green-600">{{ ktpMessage }}</p>
+                                    <p v-if="berkas.ktp_ortu" class="ml-4 font-medium">KTP Telah Terupload</p>
+                                </div>
+                                <div class="ml-2.5 flex gap-x-2">
+                                    <a
+                                        :href="ktpFile"
+                                        v-if="ktpUrl"
+                                        target="_blank"
+                                        class="border-primary text-primary dark:border-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
+                                    >
+                                        <div>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                aria-hidden="true"
+                                                role="img"
+                                                class="iconify iconify--tabler mr-0.5 text-lg"
+                                                width="1em"
+                                                height="1em"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0-4 0"></path>
+                                                    <path d="M21 12q-3.6 6-9 6t-9-6q3.6-6 9-6t9 6"></path>
+                                                </g>
+                                            </svg>
+                                        </div>
+                                    </a>
+                                    <a
+                                        :href="/storage/ + form.ktp_ortu"
+                                        v-if="form.ktp_ortu"
+                                        target="_blank"
+                                        class="border-primary dark:border-primary flex w-32 cursor-pointer items-center justify-start gap-2 rounded-lg bg-green-600 px-[24px] py-[10px] text-center text-sm text-white transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
+                                    >
+                                        <div>Lihat Berkas</div>
+                                    </a>
+                                </div>
+                            </div>
+                            <p class="flex items-center">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                                    aria-hidden="true"
+                                    role="img"
+                                    class="iconify iconify--tabler aspect-square w-6 text-lg text-amber-600"
+                                    width="1em"
+                                    height="1em"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        fill="currentColor"
+                                        d="M12 2c5.523 0 10 4.477 10 10a10 10 0 0 1-19.995.324L2 12l.004-.28C2.152 6.327 6.57 2 12 2m.01 13l-.127.007a1 1 0 0 0 0 1.986L12 17l.127-.007a1 1 0 0 0 0-1.986zM12 7a1 1 0 0 0-.993.883L11 8v4l.007.117a1 1 0 0 0 1.986 0L13 12V8l-.007-.117A1 1 0 0 0 12 7"
+                                    ></path></svg
+                                >Tipe File untuk KTP Wali adalah*.pdf (MAX. 2Mb). Pastikan dokumen yang diupload terlihat jelas dan bisa terbaca."
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <div class="flex flex-col gap-3 text-sm">
+                            <p class="font-medium">Dokumen Surat Tanggung Jawab Mutlak</p>
+                            <div class="flex h-10">
+                                <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
+                                    <input
+                                        v-if="!berkas.sptjm"
+                                        class="text-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
+                                        aria-describedby="file_input_help"
+                                        id="file_input"
+                                        type="file"
+                                        accept="application/pdf"
+                                        @change="handleSPTJMUpload"
+                                    />
+                                    <div v-if="sptjmProgress" class="h-4 rounded-xl bg-indigo-600" :style="{ width: sptjmProgress + '%' }"></div>
+                                    <p v-if="sptjmMessage" class="text-sm font-semibold text-green-600">{{ sptjmMessage }}</p>
+                                    <p v-if="berkas.sptjm" class="ml-4 font-medium">SPTJM Telah Terupload</p>
+                                </div>
+                                <div class="ml-2.5 flex gap-x-2">
+                                    <a
+                                        :href="sptjmFile"
+                                        v-if="sptjmUrl"
+                                        target="_blank"
+                                        class="border-primary text-primary dark:border-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
+                                    >
+                                        <div>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                aria-hidden="true"
+                                                role="img"
+                                                class="iconify iconify--tabler mr-0.5 text-lg"
+                                                width="1em"
+                                                height="1em"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0-4 0"></path>
+                                                    <path d="M21 12q-3.6 6-9 6t-9-6q3.6-6 9-6t9 6"></path>
+                                                </g>
+                                            </svg>
+                                        </div>
+                                    </a>
+                                    <a
+                                        :href="/storage/ + form.sptjm"
+                                        v-if="form.sptjm"
+                                        target="_blank"
+                                        class="border-primary dark:border-primary flex w-32 cursor-pointer items-center justify-start gap-2 rounded-lg bg-green-600 px-[24px] py-[10px] text-center text-sm text-white transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
+                                    >
+                                        <div>Lihat Berkas</div>
+                                    </a>
+                                </div>
+                            </div>
+                            <p class="flex items-center">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                                    aria-hidden="true"
+                                    role="img"
+                                    class="iconify iconify--tabler aspect-square w-6 text-lg text-amber-600"
+                                    width="1em"
+                                    height="1em"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        fill="currentColor"
+                                        d="M12 2c5.523 0 10 4.477 10 10a10 10 0 0 1-19.995.324L2 12l.004-.28C2.152 6.327 6.57 2 12 2m.01 13l-.127.007a1 1 0 0 0 0 1.986L12 17l.127-.007a1 1 0 0 0 0-1.986zM12 7a1 1 0 0 0-.993.883L11 8v4l.007.117a1 1 0 0 0 1.986 0L13 12V8l-.007-.117A1 1 0 0 0 12 7"
+                                    ></path></svg
+                                >Tipe File untuk Ijazah adalah*.pdf (MAX. 2Mb). Pastikan dokumen yang diupload terlihat jelas dan bisa terbaca."
+                            </p>
+                        </div>
+                    </div>
+
+                    <p class="mt-8 text-lg leading-7 font-bold">Data Raport Siswa</p>
+
+                    <div class="mt-5 mb-5 grid grid-cols-1 gap-y-5">
+                        <div class="flex flex-col gap-3 text-sm">
+                            <p class="font-medium">Scan Nilai Rapor dari semester 1 (Satu) s/d 5 (Lima). digabungkan dalam 1 file .pdf</p>
+                            <div class="flex h-10">
+                                <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
+                                    <input
+                                        v-if="!berkas.rapor"
+                                        class="text-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
+                                        aria-describedby="file_input_help"
+                                        id="file_input"
+                                        type="file"
+                                        accept="application/pdf"
+                                        @change="handleRaporUpload"
+                                    />
+                                    <div v-if="raporProgress" class="h-4 rounded-xl bg-indigo-600" :style="{ width: raporProgress + '%' }"></div>
+                                    <p v-if="raporMessage" class="text-sm font-semibold text-green-600">{{ raporMessage }}</p>
+                                    <p v-if="berkas.rapor" class="ml-4 font-medium">Rapor Telah Terupload</p>
+                                </div>
+                                <div class="ml-2.5 flex gap-x-2">
+                                    <a
+                                        :href="raporFile"
+                                        v-if="raporUrl"
+                                        target="_blank"
+                                        class="border-primary text-primary dark:border-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
+                                    >
+                                        <div>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                aria-hidden="true"
+                                                role="img"
+                                                class="iconify iconify--tabler mr-0.5 text-lg"
+                                                width="1em"
+                                                height="1em"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0-4 0"></path>
+                                                    <path d="M21 12q-3.6 6-9 6t-9-6q3.6-6 9-6t9 6"></path>
+                                                </g>
+                                            </svg>
+                                        </div>
+                                    </a>
+                                    <a
+                                        :href="/storage/ + form.rapor"
+                                        v-if="form.rapor"
+                                        target="_blank"
+                                        class="border-primary dark:border-primary flex w-32 cursor-pointer items-center justify-start gap-2 rounded-lg bg-green-600 px-[24px] py-[10px] text-center text-sm text-white transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
+                                    >
+                                        <div>Lihat Berkas</div>
+                                    </a>
+                                </div>
+                            </div>
+                            <p class="flex items-center">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                                    aria-hidden="true"
+                                    role="img"
+                                    class="iconify iconify--tabler aspect-square w-6 text-lg text-amber-600"
+                                    width="1em"
+                                    height="1em"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        fill="currentColor"
+                                        d="M12 2c5.523 0 10 4.477 10 10a10 10 0 0 1-19.995.324L2 12l.004-.28C2.152 6.327 6.57 2 12 2m.01 13l-.127.007a1 1 0 0 0 0 1.986L12 17l.127-.007a1 1 0 0 0 0-1.986zM12 7a1 1 0 0 0-.993.883L11 8v4l.007.117a1 1 0 0 0 1.986 0L13 12V8l-.007-.117A1 1 0 0 0 12 7"
+                                    ></path></svg
+                                >Tipe File untuk Rapor adalah*.pdf (MAX. 5Mb). Pastikan dokumen yang diupload terlihat jelas dan bisa terbaca."
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-6">
+                        <div class="mb-5">
+                            <div class="mb-2 text-sm font-medium">Kelas VII / 7 (Semester Ganjil)</div>
+                            <div class="mb-0 rounded-xl border-[1px] border-[#D1D5DB] px-4 py-2">
+                                <div class="flex gap-2">
+                                    <div class="flex-1">
+                                        <input
+                                            name="semester_1"
+                                            type="number"
+                                            placeholder="Masukan Semester 1"
+                                            class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">Masukkan Nilai Rata-Rata Rapor Semester 1</p>
+                        </div>
+                        <div class="mb-5">
+                            <div class="mb-2 text-sm font-medium">Kelas VII / 7 (Semester Genap)</div>
+                            <div class="mb-0 rounded-xl border-[1px] border-[#D1D5DB] px-4 py-2">
+                                <div class="flex gap-2">
+                                    <div class="flex-1">
+                                        <input
+                                            name="semester_2"
+                                            type="number"
+                                            placeholder="Masukan Semester 2"
+                                            class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">Masukkan Nilai Rata-Rata Rapor Semester 2</p>
+                        </div>
+                        <div class="mb-5">
+                            <div class="mb-2 text-sm font-medium">Kelas VIII / 8 (Semester Ganjil)</div>
+                            <div class="mb-0 rounded-xl border-[1px] border-[#D1D5DB] px-4 py-2">
+                                <div class="flex gap-2">
+                                    <div class="flex-1">
+                                        <input
+                                            name="semester_3"
+                                            type="number"
+                                            placeholder="Masukan Semester 3"
+                                            class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">Masukkan Nilai Rata-Rata Rapor Semester 3</p>
+                        </div>
+                        <div class="mb-5">
+                            <div class="mb-2 text-sm font-medium">Kelas VIII / 8 (Semester Genap)</div>
+                            <div class="mb-0 rounded-xl border-[1px] border-[#D1D5DB] px-4 py-2">
+                                <div class="flex gap-2">
+                                    <div class="flex-1">
+                                        <input
+                                            name="semester_4"
+                                            type="number"
+                                            placeholder="Masukan Semester 4"
+                                            class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">Masukkan Nilai Rata-Rata Rapor Semester 4</p>
+                        </div>
+                        <div class="mb-5">
+                            <div class="mb-2 text-sm font-medium">Kelas IX / 9 (Semester Ganjil)</div>
+                            <div class="mb-0 rounded-xl border-[1px] border-[#D1D5DB] px-4 py-2">
+                                <div class="flex gap-2">
+                                    <div class="flex-1">
+                                        <input
+                                            name="semester_5"
+                                            type="number"
+                                            placeholder="Masukan Semester 5"
+                                            class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">Masukkan Nilai Rata-Rata Rapor Semester 5</p>
+                        </div>
+                    </div>
+
+                    <p class="mt-5 text-lg leading-7 font-bold">Dokumen Jalur Domisili</p>
+
+                    <div class="grid-col-1 mt-5 mb-8 grid gap-y-5">
+                        <div class="flex flex-col gap-3 text-sm">
+                            <input class="hidden" type="file" accept=".pdf" /><input name="home_image" class="hidden" />
+                            <p class="font-medium">Foto tampak depan rumah</p>
+                            <div class="flex h-10">
+                                <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
+                                    <div class="block max-w-[200px] truncate px-3 sm:max-w-full" title="Foto tampak depan rumah">
+                                        Foto tampak depan rumah
+                                    </div>
+                                </div>
+                                <div class="ml-2.5 flex gap-x-2">
+                                    <button
+                                        class="border-primary text-primary dark:border-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
+                                    >
+                                        <div>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                aria-hidden="true"
+                                                role="img"
+                                                class="iconify iconify--tabler mr-0.5 text-lg"
+                                                width="1em"
+                                                height="1em"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0-4 0"></path>
+                                                    <path d="M21 12q-3.6 6-9 6t-9-6q3.6-6 9-6t9 6"></path>
+                                                </g>
+                                            </svg>
+                                        </div></button
+                                    ><button
+                                        class="border-primary dark:border-primary flex w-32 cursor-pointer items-center justify-start gap-2 rounded-lg bg-green-600 px-[24px] py-[10px] text-center text-sm text-white transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
+                                    >
+                                        Upload
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="flex items-center">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                                    aria-hidden="true"
+                                    role="img"
+                                    class="iconify iconify--tabler aspect-square w-6 text-lg text-amber-600"
+                                    width="1em"
+                                    height="1em"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        fill="currentColor"
+                                        d="M12 2c5.523 0 10 4.477 10 10a10 10 0 0 1-19.995.324L2 12l.004-.28C2.152 6.327 6.57 2 12 2m.01 13l-.127.007a1 1 0 0 0 0 1.986L12 17l.127-.007a1 1 0 0 0 0-1.986zM12 7a1 1 0 0 0-.993.883L11 8v4l.007.117a1 1 0 0 0 1.986 0L13 12V8l-.007-.117A1 1 0 0 0 12 7"
+                                    ></path></svg
+                                >Pastikan dokumen yang diupload terlihat jelas dan bisa terbaca."
+                            </p>
+                        </div>
+                        <div class="mb-5">
+                            <div class="mb-2 text-sm font-medium">Detail alamat rumah</div>
+                            <div class="mb-2 rounded-xl border-[1px] border-[#059669] bg-[#ECFDF5] px-4 py-2">
+                                <div class="flex gap-2">
+                                    <textarea
+                                        name="home_sign"
+                                        placeholder="Masukan Detail Alamat Rumah"
+                                        class="w-full rounded-xl border-[#059669] bg-[#ECFDF5] px-4 py-2 text-sm focus:border-none focus:ring-0 focus:outline-none"
+                                    ></textarea>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500">Contoh: Tembok Warna Putih, Pagar Warna Coklat. Bersebelahan dengan Alfa Midi</p>
+                        </div>
+                    </div>
+
+                    <Button type="submit" class="mt-4 w-1/4" :tabindex="4" :disabled="form.processing">
+                        <FileInput />
+                        <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
+                        Update Data
+                    </Button>
+                </form>
             </div>
         </div>
     </AppLayout>

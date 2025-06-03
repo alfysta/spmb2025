@@ -24,7 +24,6 @@ return new class extends Migration
             $table->string('kecamatan')->nullable();
             $table->string('desa')->nullable();
             $table->string('kode_pos')->nullable();
-            $table->string('foto')->nullable();
 
             $table->timestamps();
         });

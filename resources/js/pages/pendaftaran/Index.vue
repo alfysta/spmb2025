@@ -10,6 +10,7 @@ import { type BreadcrumbItem, type SharedData, type User } from '@/types';
 import { FileInput, LoaderCircle } from 'lucide-vue-next';
 
 import { useForm } from '@inertiajs/vue3';
+import axios from 'axios';
 
 import { router } from '@inertiajs/vue3';
 import { ref } from 'vue';
@@ -31,6 +32,7 @@ const form = useForm({
     tempat_lahir: user.tempat_lahir,
     tanggal_lahir: user.tanggal_lahir,
     nik: user.nik,
+    image: user.image,
     user_id: student.user_id,
     jenis_kelamin: student.jenis_kelamin,
     tahun_lulus: student.tahun_lulus,
@@ -55,15 +57,47 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const previewimage = ref(null);
+const file = ref(null);
+const previewUrl = ref(null);
+const progress = ref(0);
+const uploading = ref(false);
+const message = ref('');
+const imageUrl = ref(null);
 
-const handleImage = (event) => {
-    const foto = event.target.files[0];
-    if (!foto) {
-        return;
+const handleFileChange = async (e) => {
+    file.value = e.target.files[0];
+    if (!file.value) return;
+    // Preview
+    previewUrl.value = URL.createObjectURL(file.value);
+
+    await uploadImage();
+};
+
+const uploadImage = async () => {
+    const formData = new FormData();
+    formData.append('image', file.value);
+
+    uploading.value = true;
+    progress.value = 0;
+    message.value = '';
+
+    try {
+        const response = await axios.post('/persyaratan', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+            onUploadProgress: (e) => {
+                progress.value = Math.round((e.loaded * 100) / e.total);
+            },
+        });
+
+        message.value = response.data.message;
+        imageUrl.value = response.data.image_url;
+    } catch (err) {
+        message.value = 'Upload Gagal';
+    } finally {
+        uploading.value = false;
     }
-    form.foto = foto;
-    previewimage.value = URL.createObjectURL(foto);
 };
 
 const submit = () => {
@@ -80,7 +114,6 @@ const submit = () => {
         kecamatan: form.kecamatan,
         desa: form.desa,
         kode_pos: form.kode_pos,
-        foto: form.foto,
     });
 };
 </script>
@@ -119,22 +152,22 @@ const submit = () => {
                                         <div>
                                             <div class="flex w-[16rem] flex-col items-center justify-center rounded border px-8 py-6">
                                                 <div class="text-sm">Pas Foto (3x4) cm</div>
-                                                <div class="my-4 aspect-[3/4] w-full rounded-lg bg-gray-400">
-                                                    <img
-                                                        :src="form.foto ? previewimage : student.preview_url"
-                                                        v-if="student.preview_url ? student.preview_url : previewimage"
-                                                        class="h-full w-full rounded-lg object-cover"
-                                                    />
+                                                <div v-if="!form.image" class="my-4 aspect-[3/4] w-full rounded-lg bg-gray-400">
+                                                    <img :src="previewUrl" v-if="previewUrl" class="h-full w-full rounded-lg object-cover" />
                                                 </div>
+                                                <div v-else="form.image" class="my-4 aspect-[3/4] w-full rounded-lg bg-gray-400">
+                                                    <img :src="/storage/ + form.image" class="h-full w-full rounded-lg object-cover" />
+                                                </div>
+                                                <div v-if="uploading" class="h-4 rounded bg-green-500" :style="{ width: progress + '%' }"></div>
+                                                <p v-if="message" class="mb-2 text-xs text-green-600">{{ message }}</p>
                                                 <input
-                                                    v-if="!student.foto"
+                                                    v-if="!form.image"
                                                     class="border-primary text-primary dark:border-primary component-secondary w-full cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[8px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
                                                     type="file"
                                                     id="foto"
-                                                    @change="handleImage"
-                                                    @input="form.foto = $event.target.files[0]"
+                                                    @change="handleFileChange"
+                                                    accept="image/*"
                                                 />
-                                                <InputError class="mt-1 text-sm" :message="form.errors.foto" />
                                             </div>
                                         </div>
                                         <div class="grid w-full grid-cols-1 lg:gap-x-6">

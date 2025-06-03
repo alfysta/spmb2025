@@ -2,6 +2,7 @@
 
 namespace App\Models\Siswa;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Berkas extends Model
@@ -39,5 +40,9 @@ class Berkas extends Model
         });
 
         return $fileType['preview_url'] ?? asset("images/file-type-other.svg");
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
