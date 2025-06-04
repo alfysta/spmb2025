@@ -13,7 +13,7 @@ import { useForm } from '@inertiajs/vue3';
 import axios from 'axios';
 
 import { router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const page = usePage<SharedData>();
 const user = page.props.auth.user as User;
@@ -99,6 +99,61 @@ const uploadImage = async () => {
         uploading.value = false;
     }
 };
+
+const provinces = ref([]);
+const regencies = ref([]);
+const districts = ref([]);
+const villages = ref([]);
+
+const selectedProvince = ref('');
+const selectedRegency = ref('');
+const selectedDistrict = ref('');
+const selectedVillage = ref('');
+
+const getProvinces = async () => {
+    const res = await axios.get('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json');
+    provinces.value = res.data.map((p) => ({ id: p.id, name: p.name }));
+};
+
+const getRegencies = async () => {
+    selectedRegency.value = '';
+    selectedDistrict.value = '';
+    selectedVillage.value = '';
+    regencies.value = [];
+    districts.value = [];
+    villages.value = [];
+
+    if (selectedProvince.value) {
+        const res = await axios.get(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${selectedProvince.value}.json`);
+        regencies.value = res.data.map((r) => ({ id: r.id, name: r.name }));
+    }
+};
+
+const getDistricts = async () => {
+    selectedDistrict.value = '';
+    selectedVillage.value = '';
+    districts.value = [];
+    villages.value = [];
+
+    if (selectedRegency.value) {
+        const res = await axios.get(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${selectedRegency.value}.json`);
+        districts.value = res.data.map((d) => ({ id: d.id, name: d.name }));
+    }
+};
+
+const getVillages = async () => {
+    selectedVillage.value = '';
+    villages.value = [];
+
+    if (selectedDistrict.value) {
+        const res = await axios.get(`https://www.emsifa.com/api-wilayah-indonesia/api/villages/${selectedDistrict.value}.json`);
+        villages.value = res.data.map((v) => ({ id: v.id, name: v.name }));
+    }
+};
+
+onMounted(() => {
+    getProvinces();
+});
 
 const submit = () => {
     router.post(`biodata`, {
@@ -478,11 +533,16 @@ const submit = () => {
                                                         <div class="mb-0 rounded-xl border-[1px] border-[#D1D5DB] px-4 py-2">
                                                             <div class="flex gap-2">
                                                                 <div class="flex-1">
-                                                                    <input
-                                                                        placeholder="Masukkan Provinsi"
-                                                                        class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
-                                                                        v-model="form.provinsi"
-                                                                    />
+                                                                    <select
+                                                                        v-model="selectedProvince"
+                                                                        @change="getRegencies"
+                                                                        class="dark:bg-card w-full rounded-xl bg-none text-sm"
+                                                                    >
+                                                                        <option value="">-- Pilih Provinsi --</option>
+                                                                        <option v-for="province in provinces" :key="province.id" :value="province.id">
+                                                                            {{ province.name }}
+                                                                        </option>
+                                                                    </select>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -493,11 +553,16 @@ const submit = () => {
                                                         <div class="mb-0 rounded-xl border-[1px] border-[#D1D5DB] px-4 py-2">
                                                             <div class="flex gap-2">
                                                                 <div class="flex-1">
-                                                                    <input
-                                                                        placeholder="Masukkan Kota / Kabupaten"
-                                                                        class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
-                                                                        v-model="form.kabupaten"
-                                                                    />
+                                                                    <select
+                                                                        v-model="selectedRegency"
+                                                                        @change="getDistricts"
+                                                                        class="dark:bg-card w-full rounded-xl bg-none text-sm"
+                                                                    >
+                                                                        <option value="">-- Pilih Kabupaten --</option>
+                                                                        <option v-for="regency in regencies" :key="regency.id" :value="regency.id">
+                                                                            {{ regency.name }}
+                                                                        </option>
+                                                                    </select>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -508,11 +573,16 @@ const submit = () => {
                                                         <div class="mb-0 rounded-xl border-[1px] border-[#D1D5DB] px-4 py-2">
                                                             <div class="flex gap-2">
                                                                 <div class="flex-1">
-                                                                    <input
-                                                                        placeholder="Masukkan Kecamatan"
-                                                                        class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
-                                                                        v-model="form.kecamatan"
-                                                                    />
+                                                                    <select
+                                                                        v-model="selectedDistrict"
+                                                                        @change="getVillages"
+                                                                        class="dark:bg-card w-full rounded-xl bg-none text-sm"
+                                                                    >
+                                                                        <option value="">-- Pilih Kecamatan --</option>
+                                                                        <option v-for="district in districts" :key="district.id" :value="district.id">
+                                                                            {{ district.name }}
+                                                                        </option>
+                                                                    </select>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -525,11 +595,15 @@ const submit = () => {
                                                         <div class="mb-0 rounded-xl border-[1px] border-[#D1D5DB] px-4 py-2">
                                                             <div class="flex gap-2">
                                                                 <div class="flex-1">
-                                                                    <input
-                                                                        placeholder="Masukkan Kelurahan / Desa"
-                                                                        class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
-                                                                        v-model="form.desa"
-                                                                    />
+                                                                    <select
+                                                                        v-model="selectedVillage"
+                                                                        class="dark:bg-card w-full rounded-xl bg-none text-sm"
+                                                                    >
+                                                                        <option value="">-- Pilih Desa --</option>
+                                                                        <option v-for="village in villages" :key="village.id" :value="village.id">
+                                                                            {{ village.name }}
+                                                                        </option>
+                                                                    </select>
                                                                 </div>
                                                             </div>
                                                         </div>
