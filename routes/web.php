@@ -16,10 +16,15 @@ Route::get('dashboard', function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/biodata', [SiswaController::class, 'index'])->name('biodata.index');
-    Route::patch('/biodata', [SiswaController::class, 'update'])->name('biodata.update');
+    Route::post('/biodata', [SiswaController::class, 'update'])->name('biodata.update');
     Route::post('/persyaratan', [SiswaController::class, 'updateImage'])->name('pendaftaran.updateImage');
     Route::get('/persyaratan', [SiswaController::class, 'show'])->name('pendaftaran.show');
     Route::post('/persyaratan/umum', [SiswaController::class, 'updateBerkas'])->name('pendaftaran.updateBerkas');
+
+    Route::get('/wilayah/provinsi', [SiswaController::class, 'getProvinces']);
+    Route::get('/wilayah/kabupaten/{code}', [SiswaController::class, 'getRegencies']);
+    Route::get('/wilayah/kecamatan/{code}', [SiswaController::class, 'getDistricts']);
+    Route::get('/wilayah/desa/{code}', [SiswaController::class, 'getVillages']);
 
     Route::get('/media/create', [MediaController::class, 'index'])->name('media.index');
     Route::post('/media', [MediaController::class, 'store'])->name('media.store');

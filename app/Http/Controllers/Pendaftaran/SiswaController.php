@@ -8,31 +8,60 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Siswa\Pendaftaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
 
 class SiswaController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
         return Inertia::render('pendaftaran/Index', [
-            'user' => auth()->user(),
-            'student' => Pendaftaran::where('user_id', auth()->user()->id)->get(),
+            'user' => $user,
+            'student' => Pendaftaran::where('user_id', $user->id)->get(),
         ]);
     }
+    public function getProvinces()
+    {
+        $response = Http::get('https://wilayah.id/api/provinces.json');
+        return $response->json();
+    }
+
+    public function getRegencies($code)
+    {
+        $response = Http::get("https://wilayah.id/api/regencies/{$code}.json");
+        return $response->json();
+    }
+
+    public function getDistricts($code)
+    {
+        $response = Http::get("https://wilayah.id/api/districts/{$code}.json");
+        return $response->json();
+    }
+
+    public function getVillages($code)
+    {
+        $response = Http::get("https://wilayah.id/api/villages/{$code}.json");
+        return $response->json();
+    }
+
+
+
+
     public function update(Request $request)
     {
-        $request->validate([
-            'jenis_kelamin' => 'required',
-            'jenjang_pendidikan' => 'required',
-            'asal_sekolah' => 'required',
-            'tahun_lulus' => 'required',
-            'no_hp' => 'required',
-            'provinsi' => 'required',
-            'kabupaten' => 'required',
-            'kecamatan' => 'required',
-            'desa' => 'required',
-            'kode_pos' => 'required',
-        ]);
+        // $request->validate([
+        //     'jenis_kelamin' => 'required',
+        //     'jenjang_pendidikan' => 'required',
+        //     'asal_sekolah' => 'required',
+        //     'tahun_lulus' => 'required',
+        //     'no_hp' => 'required',
+        //     'provinsi' => 'required',
+        //     'kabupaten' => 'required',
+        //     'kecamatan' => 'required',
+        //     'desa' => 'required',
+        //     'kode_pos' => 'required',
+        // ]);
 
         $student = Pendaftaran::where('user_id', auth()->user()->id)->first();
         $data = ([
@@ -54,6 +83,7 @@ class SiswaController extends Controller
 
     public function show()
     {
+
         return Inertia::render('pendaftaran/Berkas', [
             'user' => auth()->user(),
             'student' => Pendaftaran::where('user_id', auth()->user()->id)->get(),

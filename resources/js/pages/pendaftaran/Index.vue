@@ -2,18 +2,17 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 
-import { usePage } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { type BreadcrumbItem, type SharedData, type User } from '@/types';
 import { FileInput, LoaderCircle } from 'lucide-vue-next';
 
-import { useForm } from '@inertiajs/vue3';
 import axios from 'axios';
 
 import { router } from '@inertiajs/vue3';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 
 const page = usePage<SharedData>();
 const user = page.props.auth.user as User;
@@ -100,77 +99,60 @@ const uploadImage = async () => {
     }
 };
 
-const provinces = ref([]);
-const regencies = ref([]);
-const districts = ref([]);
-const villages = ref([]);
+const provinsi = ref([]);
+const kabupaten = ref([]);
+const kecamatan = ref([]);
+const desa = ref([]);
 
-const selectedProvince = ref('');
-const selectedRegency = ref('');
-const selectedDistrict = ref('');
-const selectedVillage = ref('');
-
-const getProvinces = async () => {
-    const res = await axios.get('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json');
-    provinces.value = res.data.map((p) => ({ id: p.id, name: p.name }));
+const fetchProvinsi = async () => {
+    const res = await axios.get('/wilayah/provinsi');
+    provinsi.value = res.data.data;
 };
 
-const getRegencies = async () => {
-    selectedRegency.value = '';
-    selectedDistrict.value = '';
-    selectedVillage.value = '';
-    regencies.value = [];
-    districts.value = [];
-    villages.value = [];
-
-    if (selectedProvince.value) {
-        const res = await axios.get(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${selectedProvince.value}.json`);
-        regencies.value = res.data.map((r) => ({ id: r.id, name: r.name }));
+const fetchKabupaten = async () => {
+    form.kabupaten = '';
+    form.kecamatan = '';
+    form.desa = '';
+    form.kode_pos = '';
+    kabupaten.value = [];
+    if (form.provinsi) {
+        const res = await axios.get(`/wilayah/kabupaten/${form.provinsi}`);
+        kabupaten.value = res.data.data;
     }
 };
 
-const getDistricts = async () => {
-    selectedDistrict.value = '';
-    selectedVillage.value = '';
-    districts.value = [];
-    villages.value = [];
-
-    if (selectedRegency.value) {
-        const res = await axios.get(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${selectedRegency.value}.json`);
-        districts.value = res.data.map((d) => ({ id: d.id, name: d.name }));
+const fetchKecamatan = async () => {
+    form.kecamatan = '';
+    form.desa = '';
+    form.kode_pos = '';
+    kecamatan.value = [];
+    if (form.kabupaten) {
+        const res = await axios.get(`/wilayah/kecamatan/${form.kabupaten}`);
+        kecamatan.value = res.data.data;
     }
 };
 
-const getVillages = async () => {
-    selectedVillage.value = '';
-    villages.value = [];
-
-    if (selectedDistrict.value) {
-        const res = await axios.get(`https://www.emsifa.com/api-wilayah-indonesia/api/villages/${selectedDistrict.value}.json`);
-        villages.value = res.data.map((v) => ({ id: v.id, name: v.name }));
+const fetchDesa = async () => {
+    form.desa = '';
+    form.kode_pos = '';
+    desa.value = [];
+    if (form.kecamatan) {
+        const res = await axios.get(`/wilayah/desa/${form.kecamatan}`);
+        desa.value = res.data.data;
     }
 };
 
-onMounted(() => {
-    getProvinces();
-});
+const setKodePos = () => {
+    const selected = desa.value.find((item) => item.code === form.desa);
+    form.kode_pos = selected?.postal_code || '';
+};
 
 const submit = () => {
-    router.post(`biodata`, {
-        _method: 'patch',
-        user_id: form.user_id,
-        jenis_kelamin: form.jenis_kelamin,
-        tahun_lulus: form.tahun_lulus,
-        jenjang_pendidikan: form.jenjang_pendidikan,
-        asal_sekolah: form.asal_sekolah,
-        no_hp: form.no_hp,
-        provinsi: form.provinsi,
-        kabupaten: form.kabupaten,
-        kecamatan: form.kecamatan,
-        desa: form.desa,
-        kode_pos: form.kode_pos,
-    });
+    // Kirim ke route Laravel, misal: /alamat/store
+    router.post('biodata', form);
 };
+
+fetchProvinsi();
 </script>
 
 <template>
@@ -253,7 +235,6 @@ const submit = () => {
                                                                 disabled
                                                                 v-model="form.nik"
                                                             />
-                                                            <InputError class="mt-1 text-sm" :message="form.errors.nik" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -534,13 +515,13 @@ const submit = () => {
                                                             <div class="flex gap-2">
                                                                 <div class="flex-1">
                                                                     <select
-                                                                        v-model="selectedProvince"
-                                                                        @change="getRegencies"
+                                                                        v-model="form.provinsi"
+                                                                        @change="fetchKabupaten"
                                                                         class="dark:bg-card w-full rounded-xl bg-none text-sm"
                                                                     >
-                                                                        <option value="">-- Pilih Provinsi --</option>
-                                                                        <option v-for="province in provinces" :key="province.id" :value="province.id">
-                                                                            {{ province.name }}
+                                                                        <option value="" disabled>Pilih Provinsi</option>
+                                                                        <option v-for="prov in provinsi" :key="prov.code" :value="prov.code">
+                                                                            {{ prov.name }}
                                                                         </option>
                                                                     </select>
                                                                 </div>
@@ -554,13 +535,13 @@ const submit = () => {
                                                             <div class="flex gap-2">
                                                                 <div class="flex-1">
                                                                     <select
-                                                                        v-model="selectedRegency"
-                                                                        @change="getDistricts"
+                                                                        v-model="form.kabupaten"
+                                                                        @change="fetchKecamatan"
                                                                         class="dark:bg-card w-full rounded-xl bg-none text-sm"
                                                                     >
-                                                                        <option value="">-- Pilih Kabupaten --</option>
-                                                                        <option v-for="regency in regencies" :key="regency.id" :value="regency.id">
-                                                                            {{ regency.name }}
+                                                                        <option disabled value="">Pilih Kabupaten</option>
+                                                                        <option v-for="kab in kabupaten" :key="kab.code" :value="kab.code">
+                                                                            {{ kab.name }}
                                                                         </option>
                                                                     </select>
                                                                 </div>
@@ -574,13 +555,13 @@ const submit = () => {
                                                             <div class="flex gap-2">
                                                                 <div class="flex-1">
                                                                     <select
-                                                                        v-model="selectedDistrict"
-                                                                        @change="getVillages"
+                                                                        v-model="form.kecamatan"
+                                                                        @change="fetchDesa"
                                                                         class="dark:bg-card w-full rounded-xl bg-none text-sm"
                                                                     >
-                                                                        <option value="">-- Pilih Kecamatan --</option>
-                                                                        <option v-for="district in districts" :key="district.id" :value="district.id">
-                                                                            {{ district.name }}
+                                                                        <option disabled value="">Pilih Kecamatan</option>
+                                                                        <option v-for="kec in kecamatan" :key="kec.code" :value="kec.code">
+                                                                            {{ kec.name }}
                                                                         </option>
                                                                     </select>
                                                                 </div>
@@ -591,17 +572,18 @@ const submit = () => {
                                                 </div>
                                                 <div class="grid grid-cols-1 lg:grid-cols-3 lg:gap-x-6">
                                                     <div class="mb-5">
-                                                        <div class="mb-2 text-sm font-medium">Kelurahan</div>
+                                                        <div class="mb-2 text-sm font-medium">Desa/Kelurahan</div>
                                                         <div class="mb-0 rounded-xl border-[1px] border-[#D1D5DB] px-4 py-2">
                                                             <div class="flex gap-2">
                                                                 <div class="flex-1">
                                                                     <select
-                                                                        v-model="selectedVillage"
+                                                                        v-model="form.desa"
+                                                                        @change="setKodePos"
                                                                         class="dark:bg-card w-full rounded-xl bg-none text-sm"
                                                                     >
-                                                                        <option value="">-- Pilih Desa --</option>
-                                                                        <option v-for="village in villages" :key="village.id" :value="village.id">
-                                                                            {{ village.name }}
+                                                                        <option disabled value="">Pilih Desa</option>
+                                                                        <option v-for="desa in desa" :key="desa.code" :value="desa.code">
+                                                                            {{ desa.name }}
                                                                         </option>
                                                                     </select>
                                                                 </div>
@@ -629,9 +611,9 @@ const submit = () => {
                                                             <div class="flex gap-2">
                                                                 <div class="flex-1">
                                                                     <input
+                                                                        v-model="form.kode_pos"
                                                                         placeholder="Masukkan Kode Pos"
                                                                         class="w-full border-none bg-transparent p-0 text-sm transition ease-in-out hover:scale-99 focus:border-none focus:ring-0 focus:outline-none"
-                                                                        v-model="form.kode_pos"
                                                                     />
                                                                 </div>
                                                                 <InputError class="mt-1 text-sm" :message="form.errors.kode_pos" />

@@ -350,7 +350,7 @@ const handleRaporUpload = async (e) => {
                                 </div>
                                 <div class="ml-2.5 flex gap-x-2">
                                     <a
-                                        :href="akteFile"
+                                        :href="akteUrl"
                                         v-if="akteUrl"
                                         target="_blank"
                                         class="border-primary text-primary dark:border-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
