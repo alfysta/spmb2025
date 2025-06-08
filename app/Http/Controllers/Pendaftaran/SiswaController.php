@@ -16,9 +16,10 @@ class SiswaController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $student = Pendaftaran::where('user_id', $user->id)->get();
         return Inertia::render('pendaftaran/Index', [
             'user' => $user,
-            'student' => Pendaftaran::where('user_id', $user->id)->get(),
+            'student' => $student
         ]);
     }
     public function getProvinces()
@@ -119,8 +120,8 @@ class SiswaController extends Controller
     {
         $berkas = Berkas::where('user_id', auth()->user()->id)->first();
         $request->validate([
-            'type' => 'required|in:kartu_keluarga,ijazah,akte_kelahiran,ktp_ortu,sptjm,rapor',
-            'file' => 'required|mimes:pdf|max:5120',
+            'type' => 'in:kartu_keluarga,ijazah,akte_kelahiran,ktp_ortu,sptjm,rapor',
+            'file' => 'mimes:pdf|max:5120',
         ]);
 
         $user = Auth::user();
@@ -129,15 +130,26 @@ class SiswaController extends Controller
         if ($berkas->$type) {
             Storage::disk('public')->delete($berkas->$type);
         }
-
         $path = $request->file('file')->store("images/{$user->nisn}", 'public');
-
         $berkas->$type = $path;
         $berkas->save();
-
         return response()->json([
             'message' => ucfirst(str_replace('_', ' ', $type)) . ' berhasil diupload.',
             'url' => asset("storage/{$path}")
         ]);
+    }
+
+    public function updateRapor(Request $request)
+    {
+        $berkas = Berkas::where('user_id', auth()->user()->id)->first();
+        $berkas->update([
+            'nilai_rapor1' => $request->nilai_rapor1,
+            'nilai_rapor2' => $request->nilai_rapor2,
+            'nilai_rapor3' => $request->nilai_rapor3,
+            'nilai_rapor4' => $request->nilai_rapor4,
+            'nilai_rapor5' => $request->nilai_rapor5,
+        ]);
+
+        return to_route('pendaftaran.show');
     }
 }

@@ -12,17 +12,18 @@ import { FileInput, LoaderCircle } from 'lucide-vue-next';
 import axios from 'axios';
 
 import { router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const page = usePage<SharedData>();
 const user = page.props.auth.user as User;
 
 const student = page.props.student[0];
 
-defineProps({
+const props = defineProps({
     user: Object,
     student: Object,
 });
+// const isEdit = !!props.student?.id;
 
 const form = useForm({
     name: user.name,
@@ -38,11 +39,11 @@ const form = useForm({
     jenjang_pendidikan: student.jenjang_pendidikan,
     asal_sekolah: student.asal_sekolah,
     no_hp: student.no_hp,
-    provinsi: student.provinsi,
-    kabupaten: student.kabupaten,
-    kecamatan: student.kecamatan,
-    desa: student.desa,
-    kode_pos: student.kode_pos,
+    provinsi: student.provinsi || '',
+    kabupaten: student.kabupaten || '',
+    kecamatan: student.kecamatan || '',
+    desa: student.desa || '',
+    kode_pos: student.kode_pos || '',
 });
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -98,6 +99,7 @@ const uploadImage = async () => {
         uploading.value = false;
     }
 };
+// Props dari Laravel
 
 const provinsi = ref([]);
 const kabupaten = ref([]);
@@ -108,43 +110,54 @@ const fetchProvinsi = async () => {
     const res = await axios.get('/wilayah/provinsi');
     provinsi.value = res.data.data;
 };
-
 const fetchKabupaten = async () => {
-    form.kabupaten = '';
-    form.kecamatan = '';
-    form.desa = '';
-    form.kode_pos = '';
-    kabupaten.value = [];
     if (form.provinsi) {
         const res = await axios.get(`/wilayah/kabupaten/${form.provinsi}`);
         kabupaten.value = res.data.data;
     }
 };
-
 const fetchKecamatan = async () => {
-    form.kecamatan = '';
-    form.desa = '';
-    form.kode_pos = '';
-    kecamatan.value = [];
     if (form.kabupaten) {
         const res = await axios.get(`/wilayah/kecamatan/${form.kabupaten}`);
         kecamatan.value = res.data.data;
     }
 };
-
 const fetchDesa = async () => {
-    form.desa = '';
-    form.kode_pos = '';
-    desa.value = [];
     if (form.kecamatan) {
         const res = await axios.get(`/wilayah/desa/${form.kecamatan}`);
         desa.value = res.data.data;
     }
 };
-
 const setKodePos = () => {
-    const selected = desa.value.find((item) => item.code === form.desa);
+    const selected = desa.value.find((d) => d.code === form.desa);
     form.kode_pos = selected?.postal_code || '';
+};
+
+const onProvinsiChange = async () => {
+    form.kabupaten = '';
+    form.kecamatan = '';
+    form.desa = '';
+    form.kode_pos = '';
+    kabupaten.value = [];
+    kecamatan.value = [];
+    desa.value = [];
+    await fetchKabupaten();
+};
+
+const onKabupatenChange = async () => {
+    form.kecamatan = '';
+    form.desa = '';
+    form.kode_pos = '';
+    kecamatan.value = [];
+    desa.value = [];
+    await fetchKecamatan();
+};
+
+const onKecamatanChange = async () => {
+    form.desa = '';
+    form.kode_pos = '';
+    desa.value = [];
+    await fetchDesa();
 };
 
 const submit = () => {
@@ -152,7 +165,13 @@ const submit = () => {
     router.post('biodata', form);
 };
 
-fetchProvinsi();
+onMounted(async () => {
+    await fetchProvinsi();
+    if (form.provinsi) await fetchKabupaten();
+    if (form.kabupaten) await fetchKecamatan();
+    if (form.kecamatan) await fetchDesa();
+    if (form.desa) setKodePos();
+});
 </script>
 
 <template>
@@ -516,10 +535,10 @@ fetchProvinsi();
                                                                 <div class="flex-1">
                                                                     <select
                                                                         v-model="form.provinsi"
-                                                                        @change="fetchKabupaten"
+                                                                        @change="onProvinsiChange"
                                                                         class="dark:bg-card w-full rounded-xl bg-none text-sm"
                                                                     >
-                                                                        <option value="" disabled>Pilih Provinsi</option>
+                                                                        <option value="" selected>Pilih Provinsi</option>
                                                                         <option v-for="prov in provinsi" :key="prov.code" :value="prov.code">
                                                                             {{ prov.name }}
                                                                         </option>
@@ -536,7 +555,7 @@ fetchProvinsi();
                                                                 <div class="flex-1">
                                                                     <select
                                                                         v-model="form.kabupaten"
-                                                                        @change="fetchKecamatan"
+                                                                        @change="onKabupatenChange"
                                                                         class="dark:bg-card w-full rounded-xl bg-none text-sm"
                                                                     >
                                                                         <option disabled value="">Pilih Kabupaten</option>
@@ -556,7 +575,7 @@ fetchProvinsi();
                                                                 <div class="flex-1">
                                                                     <select
                                                                         v-model="form.kecamatan"
-                                                                        @change="fetchDesa"
+                                                                        @change="onKecamatanChange"
                                                                         class="dark:bg-card w-full rounded-xl bg-none text-sm"
                                                                     >
                                                                         <option disabled value="">Pilih Kecamatan</option>

@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('wilayah', function (Blueprint $table) {
-            $table->string('code');
+        Schema::create('villages', function (Blueprint $table) {
+            $table->id();
+            $table->string('code', 15)->unique(); // kode desa 10 digit
             $table->string('name');
+            $table->string('postal_code', 10)->nullable();
+            $table->foreignId('district_id')->constrained('districts')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 
@@ -22,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('wilayah');
+        Schema::dropIfExists('villages');
     }
 };

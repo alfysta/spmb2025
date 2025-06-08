@@ -1,13 +1,11 @@
 <script setup lang="ts">
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type SharedData, type User } from '@/types';
-import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
-import { ref } from 'vue';
-
-import { Button } from '@/components/ui/button';
-import { Link } from '@inertiajs/vue3';
 import { FileInput, LoaderCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -40,6 +38,11 @@ const form = useForm({
     ktp_ortu: berkas.ktp_ortu,
     sptjm: berkas.sptjm,
     rapor: berkas.rapor,
+    nilai_rapor1: berkas.nilai_rapor1,
+    nilai_rapor2: berkas.nilai_rapor2,
+    nilai_rapor3: berkas.nilai_rapor3,
+    nilai_rapor4: berkas.nilai_rapor4,
+    nilai_rapor5: berkas.nilai_rapor5,
 });
 
 //data dibawah sudah fix
@@ -136,6 +139,11 @@ const handleRaporUpload = async (e) => {
     if (!raporFile.value) return;
     await uploadPdf('rapor', raporFile, raporProgress, raporMessage, raporUrl);
 };
+
+const submit = () => {
+    // Kirim ke route Laravel, misal: /alamat/store
+    router.post('/persyaratan/rapor', form);
+};
 </script>
 
 <template>
@@ -184,7 +192,7 @@ const handleRaporUpload = async (e) => {
                         <div class="flex flex-col gap-3 text-sm">
                             <p class="font-medium">Kartu Keluarga</p>
                             <div class="flex h-10">
-                                <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
+                                <div class="dark:bg-card flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB] bg-gray-200">
                                     <input
                                         v-if="!berkas.kartu_keluarga"
                                         class="text-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
@@ -203,7 +211,7 @@ const handleRaporUpload = async (e) => {
                                 </div>
                                 <div class="ml-2.5 flex gap-x-2">
                                     <a
-                                        :href="kkFile"
+                                        :href="kkUrl"
                                         v-if="kkUrl"
                                         target="_blank"
                                         class="border-primary text-primary dark:border-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
@@ -261,7 +269,7 @@ const handleRaporUpload = async (e) => {
                         <div class="flex flex-col gap-3 text-sm">
                             <p class="font-medium">Ijazah SMP/ Sederajat / Paket B / Ijazah luar negeri</p>
                             <div class="flex h-10">
-                                <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
+                                <div class="dark:bg-card flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB] bg-gray-200">
                                     <input
                                         v-if="!berkas.ijazah"
                                         class="text-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
@@ -277,7 +285,7 @@ const handleRaporUpload = async (e) => {
                                 </div>
                                 <div class="ml-2.5 flex gap-x-2">
                                     <a
-                                        :href="ijazahFile"
+                                        :href="ijazahUrl"
                                         v-if="ijazahUrl"
                                         target="_blank"
                                         class="border-primary text-primary dark:border-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
@@ -334,7 +342,7 @@ const handleRaporUpload = async (e) => {
                         <div class="flex flex-col gap-3 text-sm">
                             <p class="font-medium">Akta kelahiran</p>
                             <div class="flex h-10">
-                                <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
+                                <div class="dark:bg-card flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB] bg-gray-200">
                                     <input
                                         v-if="!berkas.akte_kelahiran"
                                         class="text-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
@@ -408,7 +416,7 @@ const handleRaporUpload = async (e) => {
                         <div class="flex flex-col gap-3 text-sm">
                             <p class="font-medium">KTP Wali</p>
                             <div class="flex h-10">
-                                <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
+                                <div class="dark:bg-card flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB] bg-gray-200">
                                     <input
                                         v-if="!berkas.ktp_ortu"
                                         class="text-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
@@ -424,7 +432,7 @@ const handleRaporUpload = async (e) => {
                                 </div>
                                 <div class="ml-2.5 flex gap-x-2">
                                     <a
-                                        :href="ktpFile"
+                                        :href="ktpUrl"
                                         v-if="ktpUrl"
                                         target="_blank"
                                         class="border-primary text-primary dark:border-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
@@ -481,7 +489,7 @@ const handleRaporUpload = async (e) => {
                         <div class="flex flex-col gap-3 text-sm">
                             <p class="font-medium">Dokumen Surat Tanggung Jawab Mutlak</p>
                             <div class="flex h-10">
-                                <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
+                                <div class="dark:bg-card flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB] bg-gray-200">
                                     <input
                                         v-if="!berkas.sptjm"
                                         class="text-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
@@ -497,7 +505,7 @@ const handleRaporUpload = async (e) => {
                                 </div>
                                 <div class="ml-2.5 flex gap-x-2">
                                     <a
-                                        :href="sptjmFile"
+                                        :href="sptjmUrl"
                                         v-if="sptjmUrl"
                                         target="_blank"
                                         class="border-primary text-primary dark:border-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
@@ -556,7 +564,7 @@ const handleRaporUpload = async (e) => {
                         <div class="flex flex-col gap-3 text-sm">
                             <p class="font-medium">Scan Nilai Rapor dari semester 1 (Satu) s/d 5 (Lima). digabungkan dalam 1 file .pdf</p>
                             <div class="flex h-10">
-                                <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
+                                <div class="dark:bg-card flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB] bg-gray-200">
                                     <input
                                         v-if="!berkas.rapor"
                                         class="text-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-99 md:px-6 md:py-2.5"
@@ -572,7 +580,7 @@ const handleRaporUpload = async (e) => {
                                 </div>
                                 <div class="ml-2.5 flex gap-x-2">
                                     <a
-                                        :href="raporFile"
+                                        :href="raporUrl"
                                         v-if="raporUrl"
                                         target="_blank"
                                         class="border-primary text-primary dark:border-primary component-secondary flex cursor-pointer items-center justify-start gap-2 rounded-lg border px-[24px] py-[10px] text-sm transition ease-in-out hover:scale-95 md:px-6 md:py-2.5"
@@ -632,7 +640,9 @@ const handleRaporUpload = async (e) => {
                                 <div class="flex gap-2">
                                     <div class="flex-1">
                                         <input
+                                            v-model="form.nilai_rapor1"
                                             name="semester_1"
+                                            step="0.01"
                                             type="number"
                                             placeholder="Masukan Semester 1"
                                             class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
@@ -648,7 +658,9 @@ const handleRaporUpload = async (e) => {
                                 <div class="flex gap-2">
                                     <div class="flex-1">
                                         <input
+                                            v-model="form.nilai_rapor2"
                                             name="semester_2"
+                                            step="0.01"
                                             type="number"
                                             placeholder="Masukan Semester 2"
                                             class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
@@ -664,7 +676,9 @@ const handleRaporUpload = async (e) => {
                                 <div class="flex gap-2">
                                     <div class="flex-1">
                                         <input
+                                            v-model="form.nilai_rapor3"
                                             name="semester_3"
+                                            step="0.01"
                                             type="number"
                                             placeholder="Masukan Semester 3"
                                             class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
@@ -680,7 +694,9 @@ const handleRaporUpload = async (e) => {
                                 <div class="flex gap-2">
                                     <div class="flex-1">
                                         <input
+                                            v-model="form.nilai_rapor4"
                                             name="semester_4"
+                                            step="0.01"
                                             type="number"
                                             placeholder="Masukan Semester 4"
                                             class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
@@ -696,8 +712,10 @@ const handleRaporUpload = async (e) => {
                                 <div class="flex gap-2">
                                     <div class="flex-1">
                                         <input
+                                            v-model="form.nilai_rapor5"
                                             name="semester_5"
                                             type="number"
+                                            step="0.01"
                                             placeholder="Masukan Semester 5"
                                             class="w-full border-none bg-transparent p-0 text-sm focus:border-none focus:ring-0 focus:outline-none"
                                         />
@@ -715,7 +733,7 @@ const handleRaporUpload = async (e) => {
                             <input class="hidden" type="file" accept=".pdf" /><input name="home_image" class="hidden" />
                             <p class="font-medium">Foto tampak depan rumah</p>
                             <div class="flex h-10">
-                                <div class="flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB]">
+                                <div class="dark:bg-card flex w-full items-center rounded-lg border-[1px] border-[#D1D5DB] bg-gray-200">
                                     <div class="block max-w-[200px] truncate px-3 sm:max-w-full" title="Foto tampak depan rumah">
                                         Foto tampak depan rumah
                                     </div>

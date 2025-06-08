@@ -20,17 +20,18 @@ Route::middleware('auth')->group(function () {
     Route::post('/persyaratan', [SiswaController::class, 'updateImage'])->name('pendaftaran.updateImage');
     Route::get('/persyaratan', [SiswaController::class, 'show'])->name('pendaftaran.show');
     Route::post('/persyaratan/umum', [SiswaController::class, 'updateBerkas'])->name('pendaftaran.updateBerkas');
+    Route::post('/persyaratan/rapor', [SiswaController::class, 'updateRapor'])->name('pendaftaran.updateRapor');
 
     Route::get('/wilayah/provinsi', [SiswaController::class, 'getProvinces']);
     Route::get('/wilayah/kabupaten/{code}', [SiswaController::class, 'getRegencies']);
     Route::get('/wilayah/kecamatan/{code}', [SiswaController::class, 'getDistricts']);
     Route::get('/wilayah/desa/{code}', [SiswaController::class, 'getVillages']);
 
-    Route::get('/media/create', [MediaController::class, 'index'])->name('media.index');
-    Route::post('/media', [MediaController::class, 'store'])->name('media.store');
+    // Route::get('/media/create', [MediaController::class, 'index'])->name('media.index');
+    // Route::post('/media', [MediaController::class, 'store'])->name('media.store');
 
-    Route::middleware(['auth'])->get('/user/profile-image', [UserImageController::class, 'index']);
-    Route::middleware(['auth'])->post('/user/profile-image', [UserImageController::class, 'update']);
+    // Route::middleware(['auth'])->get('/user/profile-image', [UserImageController::class, 'index']);
+    // Route::middleware(['auth'])->post('/user/profile-image', [UserImageController::class, 'update']);
 });
 
 
