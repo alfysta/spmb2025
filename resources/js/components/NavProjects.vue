@@ -11,6 +11,7 @@ defineProps<{
         name: string;
         url: string;
         icon: LucideIcon;
+        isActive?: boolean;
     }[];
 }>();
 
@@ -23,7 +24,7 @@ const { isMobile } = useSidebar();
     <SidebarGroup class="group-data-[collapsible=icon]:hidden">
         <SidebarMenu>
             <SidebarMenuItem v-for="item in projects" :key="item.name">
-                <SidebarMenuButton as-child>
+                <SidebarMenuButton as-child :is-active="item.url === page.url">
                     <Link :href="item.url">
                         <component :is="item.icon" />
                         <span>{{ item.name }}</span>

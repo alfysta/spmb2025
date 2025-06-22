@@ -1,0 +1,216 @@
+<script setup lang="ts">
+import AppLayout from '@/layouts/AppLayout.vue';
+import { type BreadcrumbItem } from '@/types';
+import { Head, router } from '@inertiajs/vue3';
+import debounce from 'lodash.debounce';
+
+import { computed, ref, watch } from 'vue';
+
+const props = defineProps({
+    users: Object,
+    filters: Object,
+});
+
+const search = ref(props.filters.search || '');
+const perPage = ref(props.filters.per_page || 10);
+
+watch(
+    search,
+    debounce((value) => {
+        router.get(
+            route('users.index'),
+            {
+                search: value,
+                per_page: perPage.value,
+            },
+            {
+                preserveState: true,
+                replace: true,
+            },
+        );
+    }, 500),
+);
+
+const updatePerPage = () => {
+    router.get(
+        route('users.index'),
+        {
+            search: search.value,
+            per_page: perPage.value,
+        },
+        {
+            preserveState: false,
+            replace: true,
+        },
+    );
+};
+
+const goToPage = (url) => {
+    if (url) {
+        router.visit(url, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    }
+};
+
+const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('id-ID', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+};
+
+// Pagination numbers
+const paginationRange = computed(() => {
+    const total = props.users.last_page;
+    const current = props.users.current_page;
+    const delta = 2;
+    const range = [];
+
+    for (let i = Math.max(1, current - delta); i <= Math.min(total, current + delta); i++) {
+        range.push(i);
+    }
+
+    return range;
+});
+
+// Get page URL manually
+const getPageUrl = (page) => {
+    const base = new URL(props.users.path, window.location.origin);
+    base.searchParams.set('search', search.value);
+    base.searchParams.set('per_page', perPage.value);
+    base.searchParams.set('page', page);
+    return base.toString();
+};
+
+// Info: data ke-berapa
+const from = computed(() => (props.users.current_page - 1) * props.users.per_page + 1);
+const to = computed(() => Math.min(props.users.total, props.users.current_page * props.users.per_page));
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Data Users',
+        href: '/users',
+    },
+];
+</script>
+
+<template>
+    <Head title="Users" />
+
+    <AppLayout :breadcrumbs="breadcrumbs">
+        <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <div class="relative min-h-[100vh] flex-1 rounded-xl md:min-h-min">
+                <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                    <div class="flex-column flex flex-wrap items-center justify-between space-y-4 pb-4 md:flex-row md:space-y-0">
+                        <div>
+                            <select v-model="perPage" @change="updatePerPage" class="bg-card w-32 rounded-full border px-2 py-2 text-sm">
+                                <option value="10">10 per halaman</option>
+                                <option value="25">25 per halaman</option>
+                                <option value="50">50 per halaman</option>
+                            </select>
+                        </div>
+
+                        <div class="relative">
+                            <div class="rtl:inset-r-0 pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3">
+                                <svg
+                                    class="h-4 w-4 text-gray-500"
+                                    aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 20 20"
+                                >
+                                    <path
+                                        stroke="currentColor"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                                    />
+                                </svg>
+                            </div>
+                            <input
+                                v-model="search"
+                                type="text"
+                                id="table-search-users"
+                                class="dark:bg-card block w-80 rounded-lg border border-gray-300 bg-gray-50 p-2 ps-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                                placeholder="Search for users"
+                            />
+                        </div>
+                    </div>
+                    <table class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400">
+                        <thead class="bg-card text-xs text-gray-700 uppercase dark:bg-gray-600 dark:text-gray-400">
+                            <tr>
+                                <th scope="col" class="px-3 py-3">No</th>
+                                <th scope="col" class="px-3 py-3">Nama dan Email</th>
+                                <th scope="col" class="px-3 py-3">NISN</th>
+                                <th scope="col" class="px-3 py-3">Tempat Tanggal Lahir</th>
+                                <th scope="col" class="px-3 py-3">Status</th>
+                                <th scope="col" class="px-3 py-3">Created at</th>
+                                <th scope="col" class="px-3 py-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="(user, index) in users.data"
+                                :key="user.id"
+                                class="dark:bg-card border-b border-gray-200 bg-white hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-100"
+                            >
+                                <td class="px-3 py-2">{{ index + 1 + (users.current_page - 1) * users.per_page }}</td>
+                                <th scope="row" class="flex items-center px-3 py-2 whitespace-nowrap text-gray-900 dark:text-white">
+                                    <img v-if="user.image" class="h-10 w-10 rounded-full" :src="/storage/ + user.image" alt="{{ user.name }}" />
+                                    <img v-else="user.image" class="h-10 w-10 rounded-full" src="/images/avatar.png" alt="{{ user.name }}" />
+                                    <div class="ps-3">
+                                        <div class="text-base font-semibold">{{ user.name }}</div>
+                                        <div class="font-normal text-gray-500">{{ user.email }}</div>
+                                    </div>
+                                </th>
+                                <td class="px-3 py-2">{{ user.nisn }}</td>
+                                <td class="px-3 py-2">
+                                    <div class="flex items-center">
+                                        <div class="me-2 h-2.5 w-2.5 rounded-full bg-green-500"></div>
+                                        {{ user.tempat_lahir }}, {{ formatDate(user.tanggal_lahir) }}
+                                    </div>
+                                </td>
+                                <td class="px-3 py-2">
+                                    <div class="flex items-center">
+                                        <div class="me-2 h-2.5 w-2.5 rounded-full bg-green-500"></div>
+                                        {{ user.status == 1 ? 'admin' : 'siswa' }}
+                                    </div>
+                                </td>
+                                <td class="px-3 py-2">{{ formatDate(user.created_at) }}</td>
+
+                                <td class="px-3 py-2">
+                                    <a href="#" class="font-medium text-blue-600 hover:underline dark:text-blue-500">Edit user</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <!-- Pagination -->
+                </div>
+                <div class="mt-4 flex items-center justify-between gap-2">
+                    <div class="mt-4 text-sm text-gray-600">
+                        Menampilkan <strong>{{ from }}</strong
+                        >–<strong>{{ to }}</strong> dari <strong>{{ users.total }}</strong> data
+                    </div>
+                    <div v-if="users.total > users.per_page" class="mt-4 flex gap-1">
+                        <button
+                            v-for="(link, i) in users.links"
+                            :key="i"
+                            :disabled="!link.url"
+                            v-html="link.label"
+                            @click="goToPage(link.url)"
+                            class="rounded-full px-3 py-1 text-sm"
+                            :class="{
+                                'bg-blue-600 text-white': link.active,
+                                'bg-gray-800 hover:bg-gray-300': !link.active,
+                            }"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </AppLayout>
+</template>

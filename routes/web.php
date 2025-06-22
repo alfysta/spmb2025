@@ -3,6 +3,7 @@
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\Pendaftaran\SiswaController;
 use App\Http\Controllers\UserImageController;
+use App\Http\Controllers\Users\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -32,6 +33,9 @@ Route::middleware('auth')->group(function () {
 
     // Route::middleware(['auth'])->get('/user/profile-image', [UserImageController::class, 'index']);
     // Route::middleware(['auth'])->post('/user/profile-image', [UserImageController::class, 'update']);
+});
+Route::middleware('auth')->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
 });
 
 

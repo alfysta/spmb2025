@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import type { SidebarProps } from '@/components/ui/sidebar';
 
+import NavLogout from '@/components/NavLogout.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavProjects from '@/components/NavProjects.vue';
 import NavUser from '@/components/NavUser.vue';
 
 import TeamSwitcher from '@/components/TeamSwitcher.vue';
-import { BookOpen, Bot, Frame, GalleryVerticalEnd, Map, PieChart, Settings2, SquareTerminal } from 'lucide-vue-next';
+import { BookOpen, Bot, Frame, GalleryVerticalEnd, LogOut, Map, PieChart, Settings2, SquareTerminal } from 'lucide-vue-next';
 
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar';
+import { usePage } from '@inertiajs/vue3';
+const page = usePage();
 
 const props = withDefaults(defineProps<SidebarProps>(), {
     collapsible: 'icon',
@@ -29,7 +32,6 @@ const data = {
             name: 'Dashboard',
             url: '/dashboard',
             icon: Frame,
-            isActive: true,
         },
         {
             name: 'Biodata',
@@ -48,18 +50,14 @@ const data = {
             title: 'Dashboard',
             url: '#',
             icon: SquareTerminal,
-            isActive: true,
+            isActive: ['/users', '/settings'].includes(page.url) ? true : false,
             items: [
                 {
-                    title: 'History',
-                    url: '#',
+                    title: 'Users',
+                    url: '/users',
                 },
                 {
                     title: 'Starred',
-                    url: '#',
-                },
-                {
-                    title: 'Settings',
                     url: '#',
                 },
             ],
@@ -77,10 +75,6 @@ const data = {
                     title: 'Explorer',
                     url: '#',
                 },
-                {
-                    title: 'Quantum',
-                    url: '#',
-                },
             ],
         },
         {
@@ -92,42 +86,35 @@ const data = {
                     title: 'Introduction',
                     url: '#',
                 },
-                {
-                    title: 'Get Started',
-                    url: '#',
-                },
-                {
-                    title: 'Tutorials',
-                    url: '#',
-                },
-                {
-                    title: 'Changelog',
-                    url: '#',
-                },
             ],
         },
         {
             title: 'Settings',
             url: '#',
             icon: Settings2,
+            isActive: ['/settings/profile', '/settings/password', '/settings/appearance'].includes(page.url) ? true : false,
             items: [
                 {
-                    title: 'General',
-                    url: '#',
+                    title: 'Profile',
+                    url: '/settings/profile',
                 },
                 {
-                    title: 'Team',
-                    url: '#',
+                    title: 'Password',
+                    url: '/settings/password',
                 },
                 {
-                    title: 'Billing',
-                    url: '#',
-                },
-                {
-                    title: 'Limits',
-                    url: '#',
+                    title: 'Appearance',
+                    url: '/settings/appearance',
                 },
             ],
+        },
+    ],
+
+    logout: [
+        {
+            name: 'Logout',
+            url: '/logout',
+            icon: LogOut,
         },
     ],
 };
@@ -141,6 +128,7 @@ const data = {
         <SidebarContent>
             <NavProjects :projects="data.projects" />
             <NavMain :items="data.navMain" />
+            <NavLogout :logout="data.logout" />
         </SidebarContent>
         <SidebarFooter>
             <NavUser />

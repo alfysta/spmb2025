@@ -24,6 +24,7 @@ defineProps<{
         items?: {
             title: string;
             url: string;
+            isActive?: boolean;
         }[];
     }[];
 }>();
@@ -47,7 +48,7 @@ const page = usePage<SharedData>();
                     <CollapsibleContent>
                         <SidebarMenuSub>
                             <SidebarMenuSubItem v-for="subItem in item.items" :key="subItem.title">
-                                <SidebarMenuSubButton as-child :is-active="item.href === page.url" :tooltip="item.title">
+                                <SidebarMenuSubButton as-child :is-active="subItem.url === page.url" :tooltip="subItem.title">
                                     <Link :href="subItem.url">
                                         <span>{{ subItem.title }}</span>
                                     </Link>
