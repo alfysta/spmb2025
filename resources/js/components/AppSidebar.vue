@@ -63,13 +63,14 @@ const data = {
             ],
         },
         {
-            title: 'Models',
+            title: 'Posts',
             url: '#',
             icon: Bot,
+            isActive: ['/posts', '/posts/create'].includes(page.url) ? true : false,
             items: [
                 {
-                    title: 'Genesis',
-                    url: '#',
+                    title: 'Posts',
+                    url: '/posts',
                 },
                 {
                     title: 'Explorer',

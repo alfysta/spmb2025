@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\MediaController;
 use App\Http\Controllers\Pendaftaran\SiswaController;
-use App\Http\Controllers\UserImageController;
 use App\Http\Controllers\Users\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MediaController;
+use App\Http\Controllers\Posts\PostController;
+use App\Http\Controllers\UserImageController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -36,6 +37,16 @@ Route::middleware('auth')->group(function () {
 });
 Route::middleware('auth')->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+    Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
+    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+    Route::get('/posts/{post}/edit', [PostController::class, 'edit'])->name('posts.edit');
+    Route::put('/posts/{post}', [PostController::class, 'update'])->name('posts.update');
+    Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+    Route::post('/posts/upload-thumbnail', [PostController::class, 'uploadThumbnail']);
 });
 
 
